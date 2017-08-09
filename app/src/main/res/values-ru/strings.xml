@@ -12,4 +12,15 @@
     <string name="nav_fridge_list">Список холодильников</string>
     <string name="nav_share">Поделиться</string>
     <string name="nav_tools">Инструменты</string>
+
+    <string name="title_activity_meal_card_add">Добавить продукт в холодильник</string>
+    <string name="title_activity_fridge_list">Холодильники</string>
+    <string name="title_activity_fridge_add">Добавить холодильник</string>
+
+    <string name="title_meal_card_cn">Название</string>
+    <string name="title_meal_card_cost">Стоимость</string>
+    <string name="hint_tv_meal_card_add_cn">Яблоки</string>
+    <string name="hint_tv_meal_card_add_cost">100</string>
+    <string name="b_meal_card_add_confirm">Добавить</string>
+    <string name="b_fridge_add_confirm">Добавить холодильник</string>
 </resources>

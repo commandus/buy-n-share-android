@@ -1,8 +1,10 @@
 package com.commandus.buynshare;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
@@ -31,21 +33,21 @@ public class MainActivity extends AppCompatActivity
         LoaderManager.LoaderCallbacks<Cursor>
     {
 
-    private CursorAdapter mAdapter;
+    private MealCardAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab_meal_card_add = (FloatingActionButton) findViewById(R.id.fab_main_meal_card_add);
+        fab_meal_card_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(MainActivity.this, MealCardAddActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -60,6 +62,12 @@ public class MainActivity extends AppCompatActivity
 
         ListView lvMealList = (ListView) findViewById(R.id.lv_meal_list);
         if (lvMealList != null) {
+            mAdapter = new MealCardAdapter(this, android.R.layout.simple_list_item_1, null,
+                    new String[] {MealCardProvider.F_MEAL_CN, MealCardProvider.F_QTY},
+                    new int[] {R.id.list_item_meal_card_cn, R.id.list_item_meal_card_qty}, 0);
+            lvMealList.setAdapter(mAdapter);
+            getSupportLoaderManager().initLoader(0, null, this);
+
             lvMealList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -99,57 +107,6 @@ public class MainActivity extends AppCompatActivity
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
     }
-
-    /**
-     * chat message list
-     * custom cursor adapter
-     */
-    public class ChatMsgAdapter extends SimpleCursorAdapter {
-
-        private Context mContext;
-        private ChatMsgAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
-            super(context, layout, c, from, to, flags);
-            mContext = context;
-        }
-
-		/*
-		@Override
-		public void setViewText(TextView v, String text) {
-			int id = v.getId();
-			switch (id) {
-				case android.R.id.text1:
-					break;
-				default:
-			}
-			v.setText(text);
-		}
-		*/
-
-        /**
-         * Return custom chat item view
-         * @param position position
-         * @param convertView view
-         * @param parent parent view
-         * @return custom view
-         */
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            Cursor c = (Cursor) mAdapter.getItem(position);
-            String meal_cn = c.getString(MealCardProvider.MEAL_CN);
-
-            if (convertView == null) {
-                LayoutInflater vi = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = vi.inflate(R.layout.list_item_meal_card, null);
-            }
-
-            TextView tv_cn = (TextView) convertView.findViewById(R.id.list_item_meal_card_cn);
-            TextView tv_qty = (TextView) convertView.findViewById(R.id.list_item_meal_card_qty);
-            tv_cn.setText(meal_cn);
-            tv_qty.setText("");
-            return convertView;
-        }
-    }
-
 
     @Override
     public void onBackPressed() {
@@ -196,6 +153,8 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_add_meal:
                 break;
             case R.id.nav_fridge_list:
+                Intent intent = new Intent(MainActivity.this, FridgeListActivity.class);
+                startActivity(intent);
                 break;
             case R.id.nav_share:
                 break;
@@ -205,5 +164,56 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+/**
+     * chat message list
+     * custom cursor adapter
+     */
+    public class MealCardAdapter extends SimpleCursorAdapter {
+
+        private Context mContext;
+
+        private MealCardAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
+            super(context, layout, c, from, to, flags);
+            mContext = context;
+        }
+
+            /*
+            @Override
+            public void setViewText(TextView v, String text) {
+                int id = v.getId();
+                switch (id) {
+                    case android.R.id.text1:
+                        break;
+                    default:
+                }
+                v.setText(text);
+            }
+            */
+
+        /**
+         * Return custom chat item view
+         *
+         * @param position    position
+         * @param convertView view
+         * @param parent      parent view
+         * @return custom view
+         */
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Cursor c = (Cursor) mAdapter.getItem(position);
+            String meal_cn = c.getString(MealCardProvider.MEAL_CN);
+
+            if (convertView == null) {
+                LayoutInflater vi = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = vi.inflate(R.layout.list_item_meal_card, null);
+            }
+
+            TextView tv_cn = (TextView) convertView.findViewById(R.id.list_item_meal_card_cn);
+            TextView tv_qty = (TextView) convertView.findViewById(R.id.list_item_meal_card_qty);
+            tv_cn.setText(meal_cn);
+            tv_qty.setText("");
+            return convertView;
+        }
     }
 }

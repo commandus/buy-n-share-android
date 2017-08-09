@@ -19,6 +19,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MealCardAddActivity"
+            android:label="@string/title_activity_meal_card_add"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".FridgeAddActivity"
+            android:label="@string/title_activity_fridge_add"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".FridgeListActivity"
+            android:label="@string/title_activity_fridge_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

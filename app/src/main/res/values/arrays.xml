@@ -6,4 +6,10 @@
         <item>Eggs</item>
         <item>Chicken</item>
     </string-array>
+    <string-array name="default_fridge_list">
+        <item>Fridge 1</item>
+        <item>Fridge 2</item>
+        <item>Fridge 3</item>
+        <item>Fridge 4</item>
+    </string-array>
 </resources>

@@ -6,4 +6,8 @@
         <item>Яйцо</item>
         <item>Курица</item>
     </string-array>
+    <string-array name="default_fridge_list">
+        <item>Холодильник дома</item>
+        <item>Холодильник на работе</item>
+    </string-array>
 </resources>
