@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Холодильник</string>
-    <string name="nav_title">Холодильник</string>
+    <string name="nav_title">Что в холодильнике</string>
 
     <string name="navigation_drawer_open">Открыть панель навигации</string>
     <string name="navigation_drawer_close">Закрыть панель навигации</string>
@@ -12,5 +12,4 @@
     <string name="nav_fridge_list">Список холодильников</string>
     <string name="nav_share">Поделиться</string>
     <string name="nav_tools">Инструменты</string>
-
 </resources>
