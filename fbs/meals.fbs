@@ -1,0 +1,3 @@
+include "buynshare.fbs";
+namespace bs;
+root_type Meals;

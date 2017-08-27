@@ -26,6 +26,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
+import bs.UserFridges;
+import com.google.flatbuffers.Table;
 
 
 public class MainActivity extends AppCompatActivity

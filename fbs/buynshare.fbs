@@ -1,0 +1,146 @@
+namespace bs;
+
+// base objects
+
+// polar coordinates, degrees. Altitude: meters
+
+struct Geo
+{
+	lat: float;
+	lon: float;
+	alt: int;
+}
+
+table User
+{
+	id: ulong;
+	cn: string;
+	key: string;
+	locale: string;
+	geo: Geo;
+}
+
+table Fridge
+{
+	id: ulong;
+	cn: string;
+	key: string;
+	locale: string;
+	geo: Geo;
+}
+
+table Meal
+{
+	id: ulong;
+	cn: string;
+	locale: string;
+}
+
+table Purchase
+{
+	id: ulong;
+	userid: ulong;
+	fridgeid: ulong;
+	meal: Meal;
+	cost: uint;
+	start: uint;
+	finish: uint;
+	votes: [User];	// users
+}
+
+// relations
+
+// meals in my fridges
+
+table MealCard
+{
+	meal: Meal;
+	qty: ubyte;
+}
+
+table FridgeMealCards
+{
+	fridge: Fridge;
+	mealcards: [MealCard];
+}
+
+// 
+table FridgeUser
+{
+	fridgeid: ulong;
+	user: User;
+	start: uint;
+	finish: uint;
+	balance: long;
+}
+
+table FridgeUsers
+{
+	fridge: Fridge;
+	fridgeusers: [FridgeUser];
+}
+
+// my purchases
+
+table UserPurchases
+{
+	user: User;
+	purchases: [Purchase];
+}
+
+// purchases by user in the fridge
+
+table FridgePurchases
+{
+	fridge: Fridge;
+	userpurchases: [UserPurchases];
+}
+
+// lists
+
+// Meal list in all fridges
+
+table UserFridges
+{
+	user: User;	// I am
+	mealcards: [FridgeMealCards];
+	users: [FridgeUsers];
+}
+
+table Users
+{
+	users: [User];
+}
+
+table Fridges
+{
+	fridges: [Fridge];
+}
+
+table Purchases 
+{
+	purchases: [Purchase];
+}
+
+table Meals
+{
+	meals: [Meal];
+}
+
+table MealCards
+{
+	mealcards: [MealCard];
+}
+
+table Payment
+{
+	fridge: Fridge;
+	user: User;
+	start: uint;
+	total: int;
+}
+
+table Payments
+{
+	payments: [Payment];
+}
