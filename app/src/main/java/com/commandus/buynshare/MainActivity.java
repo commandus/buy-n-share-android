@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -24,10 +22,9 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.CursorAdapter;
 import android.widget.TextView;
-import bs.UserFridges;
-import com.google.flatbuffers.Table;
+
+import com.androidnetworking.AndroidNetworking;
 
 
 public class MainActivity extends AppCompatActivity
@@ -35,11 +32,14 @@ public class MainActivity extends AppCompatActivity
         LoaderManager.LoaderCallbacks<Cursor>
     {
 
-    private MealCardAdapter mAdapter;
+    private UserFridgeAdapter mUserFridgeAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AndroidNetworking.initialize(getApplicationContext());
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(toolbar);
@@ -62,20 +62,20 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        ListView lvMealList = (ListView) findViewById(R.id.lv_meal_list);
-        if (lvMealList != null) {
-            mAdapter = new MealCardAdapter(this, android.R.layout.simple_list_item_1, null,
-                    new String[] {MealCardProvider.F_MEAL_CN, MealCardProvider.F_QTY},
-                    new int[] {R.id.list_item_meal_card_cn, R.id.list_item_meal_card_qty}, 0);
-            lvMealList.setAdapter(mAdapter);
+        ListView lvUserFridge = (ListView) findViewById(R.id.lv_meal_list);
+        if (lvUserFridge != null) {
+            mUserFridgeAdapter = new UserFridgeAdapter(this, android.R.layout.simple_list_item_1, null,
+                    UserFridgeProvider.FIELDS,
+                    new int[] {R.id.list_item_meal_card_fridge_cn, R.id.list_item_meal_card_meal_cn,  R.id.list_item_meal_card_qty}, 0);
+            lvUserFridge.setAdapter(mUserFridgeAdapter);
             getSupportLoaderManager().initLoader(0, null, this);
 
-            lvMealList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            lvUserFridge.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     // TODO
 					/*
-					Cursor c = (Cursor) mAdapter.getItem(position);
+					Cursor c = (Cursor) mUserFridgeAdapter.getItem(position);
 					int certificateId = c.getInt(UserCertificateProvider.ID);
 					String cert = c.getString(UserCertificateProvider.CERT);
 					String pk = c.getString(UserCertificateProvider.PKEY);
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity
 					*/
                 }
             });
-            lvMealList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            lvUserFridge.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                     return false;
@@ -97,17 +97,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this,
-                MealCardProvider.CONTENT_URI, null, null, null, null);
+                UserFridgeProvider.CONTENT_URI, null, null, null, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
+        mUserFridgeAdapter.swapCursor(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
+        mUserFridgeAdapter.swapCursor(null);
     }
 
     @Override
@@ -171,11 +171,11 @@ public class MainActivity extends AppCompatActivity
      * chat message list
      * custom cursor adapter
      */
-    public class MealCardAdapter extends SimpleCursorAdapter {
+    public class UserFridgeAdapter extends SimpleCursorAdapter {
 
         private Context mContext;
 
-        private MealCardAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
+        private UserFridgeAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
             super(context, layout, c, from, to, flags);
             mContext = context;
         }
@@ -203,18 +203,17 @@ public class MainActivity extends AppCompatActivity
          */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            Cursor c = (Cursor) mAdapter.getItem(position);
-            String meal_cn = c.getString(MealCardProvider.MEAL_CN);
-
             if (convertView == null) {
                 LayoutInflater vi = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = vi.inflate(R.layout.list_item_meal_card, null);
             }
-
-            TextView tv_cn = (TextView) convertView.findViewById(R.id.list_item_meal_card_cn);
+            Cursor c = (Cursor) mUserFridgeAdapter.getItem(position);
+            TextView tv_fridge_cn = (TextView) convertView.findViewById(R.id.list_item_meal_card_fridge_cn);
+            TextView tv_cn = (TextView) convertView.findViewById(R.id.list_item_meal_card_meal_cn);
             TextView tv_qty = (TextView) convertView.findViewById(R.id.list_item_meal_card_qty);
-            tv_cn.setText(meal_cn);
-            tv_qty.setText("");
+            tv_fridge_cn.setText(c.getString(1));
+            tv_cn.setText(c.getString(2));
+            tv_qty.setText(Integer.toString(c.getInt(3)));
             return convertView;
         }
     }

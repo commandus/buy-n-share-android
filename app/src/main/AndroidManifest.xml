@@ -9,6 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <uses-permission android:name="android.permission.INTERNET" />
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -30,7 +32,14 @@
         <activity
             android:name=".FridgeListActivity"
             android:label="@string/title_activity_fridge_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <provider
+            android:name=".UserFridgeProvider"
+            android:authorities="com.commandus.buynshare.userfridge"
+            android:enabled="true"
+            android:exported="true">
+        </provider>
     </application>
 
 </manifest>

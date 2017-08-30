@@ -15,7 +15,7 @@ import java.util.Date;
 /**
  * Saved chat messages
  */
-public class MealCardProvider extends ContentProvider {
+public class DbUserFridgeProvider extends ContentProvider {
     private SQLiteDatabase mDB;
 
     private static final String TABLE = "chatmsg";

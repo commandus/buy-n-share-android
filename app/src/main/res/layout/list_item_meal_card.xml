@@ -1,28 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/list_item_meal_card"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:paddingLeft="10dp"
-        android:paddingBottom="10dp"
-        android:orientation="vertical">
         <TextView
-            android:id="@+id/list_item_meal_card_cn"
-            android:layout_width="wrap_content"
+            android:id="@+id/list_item_meal_card_fridge_cn"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/list_item_meal_card_qty"
+            android:textColor="@android:color/black"
+            android:maxWidth="240dp" />
+
+        <TextView
+            android:id="@+id/list_item_meal_card_meal_cn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/list_item_meal_card_fridge_cn"
+            android:layout_toLeftOf="@+id/list_item_meal_card_qty"
             android:textColor="@android:color/black"
             android:maxWidth="240dp" />
 
         <TextView
             android:id="@+id/list_item_meal_card_qty"
-            android:layout_width="wrap_content"
+            android:layout_width="30sp"
             android:layout_height="30sp"
             android:layout_gravity="right"
+            android:gravity="center_vertical"
+            android:text="12sp"
+            android:textAlignment="center"
             android:textSize="12sp"
-            android:textColor="@android:color/darker_gray" />
-    </LinearLayout>
+            android:textColor="@android:color/darker_gray"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
 </RelativeLayout>
