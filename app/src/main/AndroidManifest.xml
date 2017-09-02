@@ -34,12 +34,6 @@
             android:label="@string/title_activity_fridge_list"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <provider
-            android:name=".UserFridgeProvider"
-            android:authorities="com.commandus.buynshare.userfridge"
-            android:enabled="true"
-            android:exported="true">
-        </provider>
     </application>
 
 </manifest>

@@ -8,12 +8,11 @@
     tools:context="com.commandus.buynshare.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-
-    <ListView
-        android:id="@+id/lv_meal_list"
+    <android.support.v4.view.ViewPager
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/vp_fridge"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:entries="@array/default_meal_list"
-        tools:layout_editor_absoluteY="8dp"
-        tools:layout_editor_absoluteX="8dp" />
+        android:layout_height="match_parent"
+    >
+    </android.support.v4.view.ViewPager>
 </android.support.constraint.ConstraintLayout>

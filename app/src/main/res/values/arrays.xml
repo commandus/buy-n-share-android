@@ -1,15 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="default_meal_list">
-        <item>Onion</item>
-        <item>Carrots</item>
-        <item>Eggs</item>
-        <item>Chicken</item>
-    </string-array>
-    <string-array name="default_fridge_list">
-        <item>Fridge 1</item>
-        <item>Fridge 2</item>
-        <item>Fridge 3</item>
-        <item>Fridge 4</item>
-    </string-array>
 </resources>
