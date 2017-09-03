@@ -1,28 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <group android:checkableBehavior="single" android:id="@+id/nav_group_fridges">
+    </group>
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_meal_list"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="@string/nav_meal_list" />
-        <item
-            android:id="@+id/nav_add_meal"
-            android:icon="@drawable/ic_menu_send"
-            android:title="@string/nav_add_meal" />
-        <item
-            android:id="@+id/nav_fridge_list"
+            android:id="@+id/nav_fridge_list_around"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="@string/nav_fridge_list"/>
+            android:title="@string/nav_fridge_list_around"/>
     </group>
-
-    <item android:title="@string/nav_tools">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="@string/nav_share" />
-        </menu>
-    </item>
-
 </menu>

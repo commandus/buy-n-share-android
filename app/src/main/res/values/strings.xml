@@ -5,19 +5,19 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
-    <string name="nav_meal_list">Foods the fridge</string>
-    <string name="nav_add_meal">Put food into fridge</string>
-    <string name="nav_fridge_list">Fridges</string>
-    <string name="nav_share">Share</string>
-    <string name="nav_tools">Tools</string>
+    <string name="action_rm_fridge">Удалить холодильник</string>
+    <string name="nav_fridge_list_around">Find fridge</string>
+    <string name="nav_my_fridges">My fridges</string>
+
     <string name="title_activity_meal_card_add">Put food into fridge</string>
+
     <string name="title_meal_card_cn">Meal</string>
     <string name="title_meal_card_cost">Cost</string>
     <string name="hint_tv_meal_card_add_cn">Apples</string>
     <string name="hint_tv_meal_card_add_cost">10</string>
     <string name="b_meal_card_add_confirm">Add</string>
     <string name="title_activity_fridge_add">Add a fridge</string>
-    <string name="title_activity_fridge_list">Fridges</string>
+    <string name="title_activity_fridge_list">Find fridge</string>
+
     <string name="b_fridge_add_confirm">Add a fridge</string>
 </resources>

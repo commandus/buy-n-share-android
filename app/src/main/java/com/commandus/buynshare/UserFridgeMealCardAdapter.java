@@ -59,7 +59,12 @@ public class UserFridgeMealCardAdapter extends BaseAdapter {
         TextView tv_qty = (TextView) convertView.findViewById(R.id.list_item_meal_card_qty);
         tv_cn.setText(getMealCards().mealcards(position).meal().cn());
         int qty = getMealCards().mealcards(position).qty();
-        tv_qty.setText(Integer.toString(qty + mClient.getMealcardQtyDiff(position)));
+        int q = qty + mClient.getMealcardQtyDiff(position);
+        if (q <= 0)
+            tv_qty.setBackgroundResource(R.drawable.rounded_textview_red);
+        else
+            tv_qty.setBackgroundResource(R.drawable.rounded_textview_green);
+        tv_qty.setText(Integer.toString(q));
         return convertView;
     }
 }

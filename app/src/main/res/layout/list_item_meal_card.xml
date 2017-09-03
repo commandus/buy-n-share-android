@@ -12,7 +12,6 @@
             android:textAlignment="center"
             android:textSize="18sp"
             android:ellipsize="marquee"
-            android:text="1asdsadsada2sp"
             android:maxWidth="240dp" />
 
         <TextView
@@ -24,6 +23,7 @@
             android:textAlignment="center"
             android:textSize="18sp"
             android:textColor="@android:color/darker_gray"
+            android:background="@drawable/rounded_textview_green"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />

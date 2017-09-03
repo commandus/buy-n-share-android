@@ -6,19 +6,16 @@
     <string name="navigation_drawer_open">Открыть панель навигации</string>
     <string name="navigation_drawer_close">Закрыть панель навигации</string>
 
-    <string name="action_settings">Настройки</string>
-    <string name="nav_meal_list">Продукты</string>
-    <string name="nav_add_meal">Добавить</string>
-    <string name="nav_fridge_list">Список холодильников</string>
-    <string name="nav_share">Поделиться</string>
-    <string name="nav_tools">Инструменты</string>
+    <string name="action_rm_fridge">Удалить холодильник</string>
+    <string name="nav_fridge_list_around">Найти холодильник</string>
+    <string name="nav_my_fridges">Мои холодильники</string>
 
     <string name="title_activity_meal_card_add">Добавить продукт в холодильник</string>
-    <string name="title_activity_fridge_list">Холодильники</string>
     <string name="title_activity_fridge_add">Добавить холодильник</string>
 
     <string name="title_meal_card_cn">Название</string>
     <string name="title_meal_card_cost">Стоимость</string>
+    <string name="title_activity_fridge_list">Найти холодильник</string>
     <string name="hint_tv_meal_card_add_cn">Яблоки</string>
     <string name="hint_tv_meal_card_add_cost">100</string>
     <string name="b_meal_card_add_confirm">Добавить</string>

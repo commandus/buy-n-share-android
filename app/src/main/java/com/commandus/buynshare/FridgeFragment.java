@@ -31,6 +31,7 @@ public class FridgeFragment extends Fragment {
         if (lvUserFridge != null) {
             mUserFridgeAdapter = new UserFridgeMealCardAdapter(Client.getUserFridges(rootView.getContext()), page);
             lvUserFridge.setAdapter(mUserFridgeAdapter);
+            /*
             lvUserFridge.setOnTouchListener(new ListViewSwipeListener(lvUserFridge, new ListViewSwipeListener.SwipeEvent() {
                 @Override
                 public void onSwipe(ListViewSwipeListener.Action action, int position) {
@@ -46,15 +47,19 @@ public class FridgeFragment extends Fragment {
                     }
                 }
             }));
-
+            */
             lvUserFridge.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    mClient.setMealcardQtyDiff(position, -1);
+                    mUserFridgeAdapter.notifyDataSetChanged();
                 }
             });
             lvUserFridge.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                    mClient.setMealcardQtyDiff(position, 1);
+                    mUserFridgeAdapter.notifyDataSetChanged();
                     return true;
                 }
             });

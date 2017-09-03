@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
+import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity
     private ViewPager mViewPager;
     private FridgeFragmentPagerAdapter mFridgeFragmentPagerAdapter;
     private Toolbar mToolbar;
+    private NavigationView mNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 showFridgeDetails(position);
+                buildNavigationMenu();
             }
 
             @Override
@@ -73,8 +76,8 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+        mNavigationView.setNavigationItemSelectedListener(this);
     }
 
     private void showFridgeDetails(int position) {
@@ -113,8 +116,8 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_rmfridge) {
+            // TODO
             return true;
         }
 
@@ -127,23 +130,53 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        switch (id) {
-            case R.id.nav_meal_list:
-                break;
-            case R.id.nav_add_meal:
-                break;
-            case R.id.nav_fridge_list:
-                Intent intent = new Intent(MainActivity.this, FridgeListActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.nav_share:
-                break;
-
+        if (id < 0)
+            setFridgePage(- id - 1);
+        else {
+            Intent intent;
+            switch (id) {
+                case 0:
+                    intent = new Intent(MainActivity.this, FridgeAddActivity.class);
+                    startActivity(intent);
+                    break;
+                case R.id.nav_fridge_list_around:
+                    intent = new Intent(MainActivity.this, FridgeListActivity.class);
+                    startActivity(intent);
+                    break;
+            }
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    private void setFridgePage(int position) {
+        mViewPager.setCurrentItem(position);
+        // showFridgeDetails(position);
+    }
+
+    private void buildNavigationMenu() {
+        Menu menu = mNavigationView.getMenu();
+        menu.clear();
+        getMenuInflater().inflate(R.menu.activity_main_drawer, menu);
+        buildMenuFridges(menu);
+    }
+
+    private void buildMenuFridges(final Menu menu) {
+        if (mClient.lastUserFridges() == null)
+            return;
+
+        SubMenu subMenu = menu.addSubMenu(getString(R.string.nav_my_fridges));
+        for (int f = 0; f < mClient.lastUserFridges().mealcardsLength(); f++) {
+            MenuItem item = subMenu.add(R.id.nav_group_fridges,
+                -1 - f, // (int) mClient.lastUserFridges().mealcards(f).fridge().id(),
+                Menu.NONE,
+                mClient.lastUserFridges().mealcards(f).fridge().cn());
+        }
+        MenuItem item = subMenu.add(R.id.nav_group_fridges,
+                0,
+                Menu.NONE,
+                getString(R.string.title_activity_fridge_add));
+
+    }
 }
