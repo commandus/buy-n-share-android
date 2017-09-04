@@ -9,6 +9,7 @@ import com.commandus.buynshare.R;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
+import bs.FridgeUsers;
 import bs.MealCard;
 import bs.UserFridges;
 
@@ -70,5 +71,26 @@ public class Client {
 
     public static UserFridges lastUserFridges() {
         return mUserFridges;
+    }
+
+    public long getFridgeId(int fridge_position) {
+        if (mUserFridges == null)
+            return -1;
+        if ((fridge_position >= mUserFridges.mealcardsLength() || fridge_position < 0))
+            return -1;
+        long id = mUserFridges.mealcards(fridge_position).fridge().id();
+        return id;
+    }
+
+    public FridgeUsers getFridgeUsers(int fridge_position) {
+        long id = getFridgeId(fridge_position);
+        if (id < 0)
+            return null;
+        for (int f = 0; f < mUserFridges.usersLength(); f++) {
+            if (mUserFridges.users(f).fridge().id() != id)
+                continue;
+            return mUserFridges.users(f);
+        }
+        return null;
     }
 }

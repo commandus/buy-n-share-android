@@ -6,4 +6,7 @@
         android:orderInCategory="100"
         android:title="@string/action_rm_fridge"
         app:showAsAction="never" />
+    <group android:checkableBehavior="single" android:id="@+id/options_group_fridge_users">
+    </group>
+
 </menu>

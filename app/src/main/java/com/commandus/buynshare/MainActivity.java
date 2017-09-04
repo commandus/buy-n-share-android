@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import com.androidnetworking.AndroidNetworking;
 import com.commandus.svc.Client;
 
+import bs.FridgeUsers;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 showFridgeDetails(position);
                 buildNavigationMenu();
+                buildFridgeMenu(position);
             }
 
             @Override
@@ -81,9 +84,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showFridgeDetails(int position) {
-        if (mClient.lastUserFridges()!= null)
-            if (mClient.lastUserFridges().mealcardsLength() > position && position >= 0)
+        if (mClient.lastUserFridges()!= null) {
+            if (mClient.lastUserFridges().mealcardsLength() > position && position >= 0) {
                 mToolbar.setTitle(mClient.lastUserFridges().mealcards(position).fridge().cn());
+            }
+        }
     }
 
     @Override
@@ -106,6 +111,18 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        if (mClient.lastUserFridges() == null)
+            return true;
+        int position =  mViewPager.getCurrentItem();
+        FridgeUsers fu =  mClient.getFridgeUsers(position);
+        // SubMenu subMenu = menu.addSubMenu(getString(R.string.nav_my_fridges));
+        for (int u = 0; u < fu.fridgeusersLength(); u++) {
+            String s = fu.fridgeusers(u).user().cn() + ": " + Long.toString(fu.fridgeusers(u).balance());
+            MenuItem item = menu.add(R.id.options_group_fridge_users,
+                    -1 - u,
+                    Menu.NONE,
+                    s);
+        }
         return true;
     }
 
@@ -127,9 +144,7 @@ public class MainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         if (id < 0)
             setFridgePage(- id - 1);
         else {
@@ -160,6 +175,10 @@ public class MainActivity extends AppCompatActivity
         menu.clear();
         getMenuInflater().inflate(R.menu.activity_main_drawer, menu);
         buildMenuFridges(menu);
+    }
+
+    private void buildFridgeMenu(int position) {
+        invalidateOptionsMenu();
     }
 
     private void buildMenuFridges(final Menu menu) {
