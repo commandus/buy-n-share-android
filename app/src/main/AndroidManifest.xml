@@ -9,6 +9,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.backup.api_key"
+            android:value="AEdPqrEAAAAImeoSt8Qwm2OkxJBWAWQdSwkIvmfc85_UR9Sv1A" />
+
         <uses-permission android:name="android.permission.INTERNET" />
 
         <activity
