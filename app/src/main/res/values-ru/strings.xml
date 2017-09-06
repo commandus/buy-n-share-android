@@ -20,4 +20,7 @@
     <string name="hint_tv_meal_card_add_cost">100</string>
     <string name="b_meal_card_add_confirm">Добавить</string>
     <string name="b_fridge_add_confirm">Добавить холодильник</string>
+    <string name="hint_et_user_cn">Имя</string>
+    <string name="action_add_user">Выполнить</string>
+    <string name="title_activity_user_add">Введите имя</string>
 </resources>

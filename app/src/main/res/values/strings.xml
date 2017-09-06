@@ -20,4 +20,7 @@
     <string name="title_activity_fridge_list">Find fridge</string>
 
     <string name="b_fridge_add_confirm">Add a fridge</string>
+    <string name="hint_et_user_cn">Name</string>
+    <string name="action_add_user">Done</string>
+    <string name="title_activity_user_add">Your nick/name</string>
 </resources>

@@ -9,7 +9,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.backup.api_key"
             android:value="AEdPqrEAAAAImeoSt8Qwm2OkxJBWAWQdSwkIvmfc85_UR9Sv1A" />
@@ -38,7 +37,7 @@
             android:name=".FridgeListActivity"
             android:label="@string/title_activity_fridge_list"
             android:theme="@style/AppTheme.NoActionBar" />
-
+        <activity android:name=".UserEditActivity"></activity>
     </application>
 
 </manifest>

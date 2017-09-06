@@ -16,9 +16,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.interceptors.GzipRequestInterceptor;
 import com.commandus.svc.Client;
 
 import bs.FridgeUsers;
+import okhttp3.OkHttpClient;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -34,7 +36,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AndroidNetworking.initialize(getApplicationContext());
+
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
+                .addInterceptor(new GzipRequestInterceptor())
+                .build();
+        AndroidNetworking.initialize(getApplicationContext(),okHttpClient);
 
         mApplicationSettings = ApplicationSettings.getInstance(this);
         mClient = Client.getInstance();
@@ -88,6 +94,16 @@ public class MainActivity extends AppCompatActivity
             if (mClient.lastUserFridges().mealcardsLength() > position && position >= 0) {
                 mToolbar.setTitle(mClient.lastUserFridges().mealcards(position).fridge().cn());
             }
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!mApplicationSettings.isUserRegistered())
+        {
+            Intent intent = new Intent(MainActivity.this, UserEditActivity.class);
+            startActivity(intent);
         }
     }
 
