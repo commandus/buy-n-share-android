@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_item_meal_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/list_item_purchase_meal_cn"
+            android:layout_width="match_parent"
+            android:layout_height="30sp"
+            android:layout_margin="@dimen/text_margin"
+            android:layout_toLeftOf="@+id/list_item_purchase_cost"
+            android:layout_toStartOf="@+id/list_item_purchase_cost"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:ellipsize="marquee"
+            android:maxWidth="240dp" />
+    <TextView
+        android:id="@+id/list_item_purchase_start"
+        android:layout_width="match_parent"
+        android:layout_height="10sp"
+        android:layout_margin="@dimen/text_margin"
+        android:layout_toLeftOf="@+id/list_item_purchase_cost"
+        android:layout_toStartOf="@+id/list_item_purchase_cost"
+        android:layout_below="@+id/list_item_purchase_meal_cn"
+        android:gravity="center_vertical"
+        android:textAlignment="center"
+        android:textSize="8sp"
+        android:ellipsize="marquee"
+        android:maxWidth="240dp" />
+        <TextView
+            android:id="@+id/list_item_purchase_cost"
+            android:layout_width="wrap_content"
+            android:layout_height="30sp"
+            android:layout_margin="@dimen/text_margin"
+            android:layout_gravity="right"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/list_item_purchase_vote"
+            />
+
+        <TextView
+            android:id="@+id/list_item_purchase_vote_count"
+            android:layout_width="30sp"
+            android:layout_height="30sp"
+            android:layout_margin="@dimen/text_margin"
+            android:layout_gravity="right"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@id/list_item_purchase_vote"
+            />
+        <TextView
+            android:id="@+id/list_item_purchase_vote"
+            android:layout_width="30sp"
+            android:layout_height="30sp"
+            android:layout_margin="@dimen/text_margin"
+            android:layout_gravity="right"
+            android:gravity="center_vertical"
+            android:textAlignment="center"
+            android:textSize="18sp"
+            android:textColor="@android:color/darker_gray"
+            android:background="@drawable/thumb_down"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+</RelativeLayout>

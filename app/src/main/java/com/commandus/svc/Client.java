@@ -12,10 +12,14 @@ import com.commandus.buynshare.R;
 import com.google.flatbuffers.FlatBufferBuilder;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import bs.FridgePurchases;
 import bs.FridgeUsers;
 import bs.MealCard;
+import bs.Purchase;
+import bs.Purchases;
 import bs.User;
 import bs.UserFridges;
 
@@ -24,7 +28,7 @@ public class Client {
 
     private static final String TAG = Client.class.getSimpleName();
     private static Client mInstance = null;
-
+    private static HashMap<Long, Purchases> mFridgePurchases;
     private HashMap<Integer, Integer> mMealCardQty;
     private static UserFridges mUserFridges;
 
@@ -33,6 +37,20 @@ public class Client {
             mInstance = new Client();
         }
         return mInstance;
+    }
+
+    public static Purchases getFridgePurchases(Context context, long fridge_id) {
+        ByteBuffer byteBuffer;
+        try {
+            byteBuffer = ByteBuffer.wrap(Helper.loadResource(context, R.raw.ls_purchase_2));
+            mFridgePurchases.put(fridge_id, Purchases.getRootAsPurchases(byteBuffer));
+        } catch (Exception e) {
+            mUserFridges = null;
+            Log.e(TAG, e.toString());
+            e.printStackTrace();
+            return null;
+        }
+        return mFridgePurchases.get(fridge_id);
     }
 
     public static UserFridges getUserFridges(Context context) {
@@ -103,6 +121,7 @@ public class Client {
 
     private  Client() {
         mMealCardQty = new HashMap<Integer, Integer>();
+        mFridgePurchases = new HashMap<Long, Purchases>();
     }
 
     public int getMealcardQtyDiff(int position) {
@@ -138,8 +157,20 @@ public class Client {
             return -1;
         if ((fridge_position >= mUserFridges.mealcardsLength() || fridge_position < 0))
             return -1;
-        long id = mUserFridges.mealcards(fridge_position).fridge().id();
-        return id;
+        return mUserFridges.mealcards(fridge_position).fridge().id();
+    }
+
+    /**
+     * @brief Return fridge common name for User Fridge at position in
+     * @param fridge_position position, zero based
+     * @return fridge identifier for User Fridge at position in
+     */
+    public String getFridgeCN(int fridge_position ) {
+        if (mUserFridges == null)
+            return "";
+        if ((fridge_position >= mUserFridges.mealcardsLength() || fridge_position < 0))
+            return "";
+        return mUserFridges.mealcards(fridge_position).fridge().cn();
     }
 
     /**
@@ -158,4 +189,21 @@ public class Client {
         }
         return null;
     }
+
+    /**
+     * @brief Check has user voted
+     * @param userId
+     * @param p
+     * @return
+     */
+    public static boolean voteExists(long userId, Purchase p) {
+        if (p == null)
+            return false;
+        for (int v = 0; v < p.votesLength(); v++) {
+            if (p.votes(v).id() == userId)
+                return true;
+        }
+        return false;
+    }
+
 }

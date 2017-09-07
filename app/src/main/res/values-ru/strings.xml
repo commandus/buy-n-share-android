@@ -23,4 +23,6 @@
     <string name="hint_et_user_cn">Имя</string>
     <string name="action_add_user">Выполнить</string>
     <string name="title_activity_user_add">Введите имя</string>
+    <string name="action_ls_purchase">Покупки</string>
+    <string name="default_locale">ru</string>
 </resources>

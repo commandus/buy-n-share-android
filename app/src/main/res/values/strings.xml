@@ -23,4 +23,6 @@
     <string name="hint_et_user_cn">Name</string>
     <string name="action_add_user">Done</string>
     <string name="title_activity_user_add">Your nick/name</string>
+    <string name="action_ls_purchase">Purchases</string>
+    <string name="default_locale">en</string>
 </resources>

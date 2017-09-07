@@ -148,12 +148,18 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        if (id == R.id.action_rmfridge) {
-            // TODO
-            return true;
+        Intent  intent;
+        switch(id) {
+            case R.id.action_lspurchase:
+                intent = new Intent(MainActivity.this, PurchaseListActivity.class);
+                intent.putExtra(PurchaseListActivity.PAR_USER_ID, mApplicationSettings.getUserId());
+                intent.putExtra(PurchaseListActivity.PAR_FRIDGE_ID, mClient.getFridgeId(mViewPager.getCurrentItem()));
+                intent.putExtra(PurchaseListActivity.PAR_FRIDGE_CN, mClient.getFridgeCN(mViewPager.getCurrentItem()));
+                startActivity(intent);
+                return true;
+            case R.id.action_rmfridge:
+                return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
