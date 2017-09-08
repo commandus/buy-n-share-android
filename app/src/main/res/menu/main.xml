@@ -11,6 +11,7 @@
         android:id="@+id/action_rmfridge"
         android:orderInCategory="900"
         android:title="@string/action_rm_fridge"
+        android:icon="@drawable/remove"
         app:showAsAction="never" />
     <group android:checkableBehavior="single" android:id="@+id/options_group_fridge_users">
     </group>

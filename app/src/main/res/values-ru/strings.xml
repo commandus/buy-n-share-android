@@ -17,7 +17,7 @@
     <string name="title_meal_card_cost">Стоимость</string>
     <string name="title_activity_fridge_list">Найти холодильник</string>
     <string name="hint_tv_meal_card_add_cn">Яблоки</string>
-    <string name="hint_tv_meal_card_add_cost">100</string>
+    <string name="hint_tv_meal_card_add_cost">Стоимость</string>
     <string name="b_meal_card_add_confirm">Добавить</string>
     <string name="b_fridge_add_confirm">Добавить холодильник</string>
     <string name="hint_et_user_cn">Имя</string>
@@ -25,4 +25,7 @@
     <string name="title_activity_user_add">Введите имя</string>
     <string name="action_ls_purchase">Покупки</string>
     <string name="default_locale">ru</string>
+    <string name="hint_tv_meal_card_add_qty">Количество</string>
+    <string name="action_add_fridge">Добавить</string>
+    <string name="action_add_meal_card">Добавить</string>
 </resources>

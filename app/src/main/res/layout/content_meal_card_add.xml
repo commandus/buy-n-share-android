@@ -12,29 +12,36 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="32pt"
         android:orientation="vertical">
 
         <AutoCompleteTextView
-            android:id="@+id/tv_meal_card_add_cn"
+            android:id="@+id/actv_meal_card_add_cn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_vertical_margin"
             android:text=""
             android:hint="@string/hint_tv_meal_card_add_cn"
             />
 
         <EditText
-            android:id="@+id/et_meal_card_add_qty"
+            android:id="@+id/et_meal_card_add_cost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_vertical_margin"
             android:ems="10"
             android:inputType="numberDecimal"
             android:hint="@string/hint_tv_meal_card_add_cost"
             />
-        <Button
-            android:id="@+id/b_meal_card_add_confirm"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/et_meal_card_add_qty"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/b_meal_card_add_confirm" />
+            android:layout_margin="@dimen/activity_vertical_margin"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:hint="@string/hint_tv_meal_card_add_qty"
+            />
 
     </LinearLayout>
 </android.support.v4.widget.NestedScrollView>

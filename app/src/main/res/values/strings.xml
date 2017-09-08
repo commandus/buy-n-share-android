@@ -14,7 +14,7 @@
     <string name="title_meal_card_cn">Meal</string>
     <string name="title_meal_card_cost">Cost</string>
     <string name="hint_tv_meal_card_add_cn">Apples</string>
-    <string name="hint_tv_meal_card_add_cost">10</string>
+    <string name="hint_tv_meal_card_add_cost">Cost</string>
     <string name="b_meal_card_add_confirm">Add</string>
     <string name="title_activity_fridge_add">Add a fridge</string>
     <string name="title_activity_fridge_list">Find fridge</string>
@@ -25,4 +25,7 @@
     <string name="title_activity_user_add">Your nick/name</string>
     <string name="action_ls_purchase">Purchases</string>
     <string name="default_locale">en</string>
+    <string name="hint_tv_meal_card_add_qty">Quantity</string>
+    <string name="action_add_fridge">Add</string>
+    <string name="action_add_meal_card">Add</string>
 </resources>

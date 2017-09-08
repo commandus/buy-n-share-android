@@ -18,6 +18,8 @@ android {
         }
     }
 
+    android.defaultConfig.vectorDrawables.useSupportLibrary = true;
+
     sourceSets {
         main.java.srcDirs += 'gen'
     }
