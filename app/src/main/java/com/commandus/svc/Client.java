@@ -18,6 +18,7 @@ import java.util.HashMap;
 import bs.FridgePurchases;
 import bs.FridgeUsers;
 import bs.MealCard;
+import bs.Meals;
 import bs.Purchase;
 import bs.Purchases;
 import bs.User;
@@ -29,6 +30,7 @@ public class Client {
     private static final String TAG = Client.class.getSimpleName();
     private static Client mInstance = null;
     private static HashMap<Long, Purchases> mFridgePurchases;
+    private static Meals mMeals;
     private HashMap<Integer, Integer> mMealCardQty;
     private static UserFridges mUserFridges;
 
@@ -37,6 +39,20 @@ public class Client {
             mInstance = new Client();
         }
         return mInstance;
+    }
+
+    public static Meals getMeals(Context context, String locale) {
+        ByteBuffer byteBuffer;
+        try {
+            byteBuffer = ByteBuffer.wrap(Helper.loadResource(context, R.raw.ls_meal));
+            mMeals = Meals.getRootAsMeals(byteBuffer);
+        } catch (Exception e) {
+            mMeals = null;
+            Log.e(TAG, e.toString());
+            e.printStackTrace();
+            return null;
+        }
+        return mMeals;
     }
 
     public static Purchases getFridgePurchases(Context context, long fridge_id) {
@@ -206,4 +222,18 @@ public class Client {
         return false;
     }
 
+    public long getMealId(String meal_cn) {
+        if (mMeals == null)
+            return -1;
+        String umeal_cn = meal_cn.toUpperCase();
+        for (int m = 0; m < mMeals.mealsLength(); m++) {
+            if (mMeals.meals(m).cn().toUpperCase().contains(umeal_cn))
+                return mMeals.meals(m).id();
+        }
+        return -1;
+    }
+
+    public void addMealCard(long mealId, long cost, int qty) {
+        // TODO
+    }
 }

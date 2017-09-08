@@ -2,7 +2,6 @@ package com.commandus.buynshare;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -12,12 +11,18 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 
+import com.commandus.svc.Client;
+
+import bs.Meals;
+
 public class MealCardAddActivity extends AppCompatActivity {
 
     private static final String TAG = MealCardAddActivity.class.getSimpleName();
     private AutoCompleteTextView mMealCN;
     private EditText mEtCost;
     private EditText mEtQty;
+    private Meals mMeals;
+    private Client mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +39,11 @@ public class MealCardAddActivity extends AppCompatActivity {
             }
         });
 
+        mClient = Client.getInstance();
+
         mMealCN = (AutoCompleteTextView) findViewById(R.id.actv_meal_card_add_cn);
+        mMeals = mClient.getMeals(this, getString(R.string.default_locale));
+        mMealCN.setAdapter(new MealAdapter(mMeals));
         mEtCost = (EditText) findViewById(R.id.et_meal_card_add_cost);
         mEtQty = (EditText) findViewById(R.id.et_meal_card_add_qty);
         // mEtQty.setText("1");
@@ -80,6 +89,8 @@ public class MealCardAddActivity extends AppCompatActivity {
         {
             Log.e(TAG, e.toString());
         }
+        long mealId = mClient.getMealId(meal);
+        mClient.addMealCard(mealId, cost, qty);
         // TODO
         finish();
     }
