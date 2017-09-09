@@ -22,8 +22,8 @@ public class UserFridgeMealCardAdapter extends BaseAdapter {
         return mUserFridges.mealcards(mPosition);
     }
 
-    public UserFridgeMealCardAdapter(UserFridges values, int position) {
-        mClient = Client.getInstance();
+    public UserFridgeMealCardAdapter(Client client, UserFridges values, int position) {
+        mClient = client;
         mPosition = position;
         if (position < 0 || position >= values.mealcardsLength())
             mUserFridges = null;

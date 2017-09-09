@@ -23,8 +23,8 @@ public class MealAdapter extends BaseAdapter implements Filterable {
     private Meals mMeals;
     private Client mClient;
 
-    public MealAdapter(Meals values) {
-        mClient = Client.getInstance();
+    public MealAdapter(Client client, Meals values) {
+        mClient = client;
         mMeals = values;
     }
 

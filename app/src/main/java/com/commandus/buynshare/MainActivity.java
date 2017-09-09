@@ -1,9 +1,11 @@
 package com.commandus.buynshare;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -14,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.interceptors.GzipRequestInterceptor;
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity
         AndroidNetworking.initialize(getApplicationContext(),okHttpClient);
 
         mApplicationSettings = ApplicationSettings.getInstance(this);
-        mClient = Client.getInstance();
+        mClient = Client.getInstance(this);
 
         setContentView(R.layout.activity_main);
         mToolbar = (Toolbar) findViewById(R.id.toolbar_main);
@@ -158,6 +161,33 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
                 return true;
             case R.id.action_rmfridge:
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.action_rm_fridge)
+                        .setMessage(R.string.action_rm_fridge_confirm)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                mClient.rmFridge(mClient.getFridgeId(mViewPager.getCurrentItem()));
+                                Toast.makeText(MainActivity.this, R.string.action_rm_fridge_done, Toast.LENGTH_SHORT).show();
+                                mFridgeFragmentPagerAdapter.notifyDataSetChanged();
+                            }})
+                        .setNegativeButton(android.R.string.no, null).show();
+                return true;
+            case R.id.action_rmuser:
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.action_rm_user)
+                        .setMessage(R.string.action_rm_user_confirm)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                mClient.rmUser();
+                                mApplicationSettings.clearUser();
+                                Toast.makeText(MainActivity.this, R.string.action_rm_user_done, Toast.LENGTH_SHORT).show();
+                                mFridgeFragmentPagerAdapter.notifyDataSetChanged();
+                                Intent intent = new Intent(MainActivity.this, UserEditActivity.class);
+                                startActivity(intent);
+                            }})
+                        .setNegativeButton(android.R.string.no, null).show();
                 return true;
         }
         return super.onOptionsItemSelected(item);

@@ -28,4 +28,9 @@
     <string name="hint_tv_meal_card_add_qty">Quantity</string>
     <string name="action_add_fridge">Add</string>
     <string name="action_add_meal_card">Add</string>
+    <string name="action_rm_user">Delete account</string>
+    <string name="action_rm_fridge_confirm">Do you really want to delete fridge?</string>
+    <string name="action_rm_fridge_done">Fridge deleted</string>
+    <string name="action_rm_user_confirm">Do you really want to delete user?</string>
+    <string name="action_rm_user_done">User deleted</string>
 </resources>

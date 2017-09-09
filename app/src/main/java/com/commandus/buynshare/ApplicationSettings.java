@@ -104,4 +104,11 @@ public class ApplicationSettings {
 		mUserPwd = user.key();
 		save();
 	}
+
+	public void clearUser() {
+		mUserId = 0;
+		mUserCN = "";
+		mUserPwd = "";
+		save();
+	}
 }

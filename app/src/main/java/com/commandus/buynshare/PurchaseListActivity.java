@@ -17,12 +17,14 @@ public class PurchaseListActivity extends AppCompatActivity {
     private long mFridgeId;
 
     private FridgePurchaseAdapter mFridgePurchaseAdapter;
+    private Client mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_purchase_list);
 
+        mClient = Client.getInstance(this);
         ListView listviewPurchase = (ListView) findViewById(R.id.listview_purchase_list);
         setTitle(mFridgeCN);
 
@@ -31,7 +33,7 @@ public class PurchaseListActivity extends AppCompatActivity {
         mFridgeId = intent.getLongExtra(PAR_FRIDGE_ID, 0);
         mFridgeCN = intent.getStringExtra(PAR_FRIDGE_CN);
 
-        mFridgePurchaseAdapter = new FridgePurchaseAdapter(mUserId, Client.getFridgePurchases(this, mFridgeId));
+        mFridgePurchaseAdapter = new FridgePurchaseAdapter(mClient, mUserId, Client.getFridgePurchases(this, mFridgeId));
         listviewPurchase.setAdapter(mFridgePurchaseAdapter);
     }
 }

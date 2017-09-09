@@ -2,6 +2,7 @@ package com.commandus.svc;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
@@ -33,11 +34,13 @@ public class Client {
     private static Meals mMeals;
     private HashMap<Integer, Integer> mMealCardQty;
     private static UserFridges mUserFridges;
+    private static Context mContext;
 
-    public synchronized static Client getInstance() {
+    public synchronized static Client getInstance(Context context) {
         if (mInstance == null) {
             mInstance = new Client();
         }
+        mInstance.setContext(context);
         return mInstance;
     }
 
@@ -98,11 +101,11 @@ public class Client {
         fbb.finish(u);
 
         long id = 0;
-
+        Log.i(TAG, "Serialized: " + Integer.toString(fbb.sizedByteArray().length));
         try {
             AndroidNetworking.post(URL + "add_user.php")
                     .setContentType("application/octet-stream")
-                    .addByteBody(fbb.dataBuffer().array())
+                    .addByteBody(fbb.sizedByteArray())
                     .build()
                     .getAsString(new StringRequestListener() {
                         @Override
@@ -112,6 +115,7 @@ public class Client {
                                 User u = User.getRootAsUser(ByteBuffer.wrap(response.getBytes()));
                                 ApplicationSettings s = ApplicationSettings.getInstance(context);
                                 s.saveUser(u);
+                                Log.i(TAG, "User " + u.cn() + " created, id: " + u.id() + ", token:" + u.key() + ", locale: " + u.locale());
                             } catch (Exception e) {
                                 Log.e(TAG, e.toString());
                                 e.printStackTrace();
@@ -119,7 +123,8 @@ public class Client {
                         }
                         @Override
                         public void onError(ANError anError) {
-
+                            Toast.makeText(Client.mContext, anError.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                            Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
                         }
                     });
         } catch (Exception e) {
@@ -235,5 +240,17 @@ public class Client {
 
     public void addMealCard(long mealId, long cost, int qty) {
         // TODO
+    }
+
+    public void rmFridge(long fridgeId) {
+        // TODO
+    }
+
+    public void rmUser() {
+        // TODO
+    }
+
+    public void setContext(Context context) {
+        this.mContext = context;
     }
 }

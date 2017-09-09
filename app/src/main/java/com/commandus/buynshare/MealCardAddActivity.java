@@ -39,11 +39,11 @@ public class MealCardAddActivity extends AppCompatActivity {
             }
         });
 
-        mClient = Client.getInstance();
+        mClient = Client.getInstance(this);
 
         mMealCN = (AutoCompleteTextView) findViewById(R.id.actv_meal_card_add_cn);
         mMeals = mClient.getMeals(this, getString(R.string.default_locale));
-        mMealCN.setAdapter(new MealAdapter(mMeals));
+        mMealCN.setAdapter(new MealAdapter(mClient, mMeals));
         mEtCost = (EditText) findViewById(R.id.et_meal_card_add_cost);
         mEtQty = (EditText) findViewById(R.id.et_meal_card_add_qty);
         // mEtQty.setText("1");

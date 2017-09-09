@@ -30,8 +30,8 @@ public class FridgePurchaseAdapter extends BaseAdapter {
         return mPurchases.purchases(position);
     }
 
-    public FridgePurchaseAdapter(long user_id, Purchases values) {
-        mClient = Client.getInstance();
+    public FridgePurchaseAdapter(Client client, long user_id, Purchases values) {
+        mClient = client;
         mPurchases = values;
         mUserId = user_id;
     }

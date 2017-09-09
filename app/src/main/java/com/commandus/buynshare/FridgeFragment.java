@@ -16,7 +16,7 @@ public class FridgeFragment extends Fragment {
     private static final String TAG = FridgeFragment.class.getSimpleName();
 
     private UserFridgeMealCardAdapter mUserFridgeAdapter;
-    private Client mClient = Client.getInstance();
+    private Client mClient = Client.getInstance(this.getContext());
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -29,7 +29,7 @@ public class FridgeFragment extends Fragment {
 
         ListView lvUserFridge = (ListView) rootView.findViewById(R.id.lv_meal_list);
         if (lvUserFridge != null) {
-            mUserFridgeAdapter = new UserFridgeMealCardAdapter(Client.getUserFridges(rootView.getContext()), page);
+            mUserFridgeAdapter = new UserFridgeMealCardAdapter(mClient, Client.getUserFridges(rootView.getContext()), page);
             lvUserFridge.setAdapter(mUserFridgeAdapter);
             /*
             lvUserFridge.setOnTouchListener(new ListViewSwipeListener(lvUserFridge, new ListViewSwipeListener.SwipeEvent() {
