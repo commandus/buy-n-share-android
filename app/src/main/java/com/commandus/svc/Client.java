@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 import bs.FridgePurchases;
 import bs.FridgeUsers;
+import bs.Geo;
 import bs.MealCard;
 import bs.Meals;
 import bs.Purchase;
@@ -86,26 +87,35 @@ public class Client {
         return mUserFridges;
     }
 
+    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
     public static long addUser(final Context context, String cn, String locale) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         int scn = fbb.createString(cn);
+        int sKey = fbb.createString("");
         int slocale = fbb.createString(locale);
 
         User.startUser(fbb);
         User.addId(fbb, 0);
         User.addCn(fbb, scn);
-        User.addKey(fbb, 0);
+        User.addKey(fbb, sKey);
         User.addLocale(fbb, slocale);
-        User.addGeo(fbb, 0);
+        User.addGeo(fbb, Geo.createGeo(fbb, 0.0f, 0.0f, 0));
         int u = User.endUser(fbb);
         fbb.finish(u);
-
         long id = 0;
-        Log.i(TAG, "Serialized: " + Integer.toString(fbb.sizedByteArray().length));
         try {
             AndroidNetworking.post(URL + "add_user.php")
                     .setContentType("application/octet-stream")
-                    .addByteBody(fbb.sizedByteArray())
+                    .addByteBody(fbb.dataBuffer().array())
                     .build()
                     .getAsString(new StringRequestListener() {
                         @Override
