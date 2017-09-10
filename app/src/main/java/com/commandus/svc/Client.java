@@ -108,7 +108,7 @@ public class Client {
         User.addCn(fbb, scn);
         User.addKey(fbb, sKey);
         User.addLocale(fbb, slocale);
-        User.addGeo(fbb, Geo.createGeo(fbb, 0.0f, 0.0f, 0));
+        // User.addGeo(fbb, Geo.createGeo(fbb, 0.0f, 0.0f, 0));
         int u = User.endUser(fbb);
         fbb.finish(u);
         long id = 0;
