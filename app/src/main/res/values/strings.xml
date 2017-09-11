@@ -33,4 +33,5 @@
     <string name="action_rm_fridge_done">Fridge deleted</string>
     <string name="action_rm_user_confirm">Do you really want to delete user?</string>
     <string name="action_rm_user_done">User deleted</string>
+    <string name="error_empty_cn">Please enter your name</string>
 </resources>

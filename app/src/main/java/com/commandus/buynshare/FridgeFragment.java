@@ -7,9 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.commandus.svc.Client;
-import com.commandus.ui.ListViewSwipeListener;
+import com.commandus.svc.OnServiceResponse;
+
+import bs.UserFridges;
 
 public class FridgeFragment extends Fragment {
     public static final String ARG_PAGE = "p";
@@ -17,6 +20,8 @@ public class FridgeFragment extends Fragment {
 
     private UserFridgeMealCardAdapter mUserFridgeAdapter;
     private Client mClient = Client.getInstance(this.getContext());
+    private ListView mListViewUserFridge;
+    private int mPage;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -25,37 +30,20 @@ public class FridgeFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_userfridge, container, false);
         Bundle args = getArguments();
 
-        int page = args.getInt(ARG_PAGE);
+        mPage = args.getInt(ARG_PAGE);
 
-        ListView lvUserFridge = (ListView) rootView.findViewById(R.id.lv_meal_list);
-        if (lvUserFridge != null) {
-            mUserFridgeAdapter = new UserFridgeMealCardAdapter(mClient, Client.getUserFridges(rootView.getContext()), page);
-            lvUserFridge.setAdapter(mUserFridgeAdapter);
-            /*
-            lvUserFridge.setOnTouchListener(new ListViewSwipeListener(lvUserFridge, new ListViewSwipeListener.SwipeEvent() {
-                @Override
-                public void onSwipe(ListViewSwipeListener.Action action, int position) {
-                    switch (action)
-                    {
-                        case LR:
-                            mClient.setMealcardQtyDiff(position, 1);
-                            mUserFridgeAdapter.notifyDataSetChanged();
-                            break;
-                        default:
-                            mClient.setMealcardQtyDiff(position, -1);
-                            mUserFridgeAdapter.notifyDataSetChanged();
-                    }
-                }
-            }));
-            */
-            lvUserFridge.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListViewUserFridge = (ListView) rootView.findViewById(R.id.lv_meal_list);
+        if (mListViewUserFridge != null) {
+            mUserFridgeAdapter = new UserFridgeMealCardAdapter(mClient, Client.lastUserFridges(), mPage);
+            mListViewUserFridge.setAdapter(mUserFridgeAdapter);
+            mListViewUserFridge.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     mClient.setMealcardQtyDiff(position, -1);
                     mUserFridgeAdapter.notifyDataSetChanged();
                 }
             });
-            lvUserFridge.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            mListViewUserFridge.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                     mClient.setMealcardQtyDiff(position, 1);
@@ -64,8 +52,6 @@ public class FridgeFragment extends Fragment {
                 }
             });
         }
-
         return rootView;
     }
-
 }

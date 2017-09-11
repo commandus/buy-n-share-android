@@ -7,14 +7,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.interceptors.GzipRequestInterceptor;
 import com.commandus.svc.Client;
+import com.commandus.svc.OnServiceResponse;
 
+import bs.User;
 import okhttp3.OkHttpClient;
 
-public class UserEditActivity extends AppCompatActivity {
+public class UserEditActivity extends AppCompatActivity
+    implements OnServiceResponse
+{
 
     private static final String TAG = UserEditActivity.class.getSimpleName();
     private EditText mCN;
@@ -40,11 +45,9 @@ public class UserEditActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private void mkUser() {
+    private void mkUser(String cn) {
         Client c = Client.getInstance(this);
-        long uid = c.addUser(this, mCN.getText().toString(), getString(R.string.default_locale));
-        ApplicationSettings s = ApplicationSettings.getInstance(this);
-        Log.i(TAG, "Add user id " + Long.toString(uid));
+        c.addUser(cn, getString(R.string.default_locale), this);
     }
 
     @Override
@@ -73,12 +76,29 @@ public class UserEditActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_adduser) {
-            mkUser();
-            finish();
+            String cn = mCN.getText().toString().trim();
+            if (cn.isEmpty()) {
+                Toast.makeText(this, R.string.error_empty_cn, Toast.LENGTH_LONG).show();
+                return true;
+            }
+
+            mkUser(cn);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onSuccess(Object response) {
+        ApplicationSettings s = ApplicationSettings.getInstance(this);
+        s.saveUser((User)response);
+        // Toast.makeText(this, "Success", Toast.LENGTH_LONG).show();
+        finish();
+    }
+
+    @Override
+    public int onError(int errorcode, String errorDescription) {
+        Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
+        return 0;
+    }
 }

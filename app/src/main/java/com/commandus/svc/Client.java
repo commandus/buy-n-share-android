@@ -73,36 +73,32 @@ public class Client {
         return mFridgePurchases.get(fridge_id);
     }
 
-    public static UserFridges getUserFridges(Context context) {
+    /**
+     * Retuen UserFridges
+     * @param context
+     * @return
+     */
+    public static void getUserFridges(Context context, final OnServiceResponse onServiceResponse) {
         ByteBuffer byteBuffer;
         try {
             byteBuffer = ByteBuffer.wrap(Helper.loadResource(context, R.raw.ls_userfridge_2));
             mUserFridges = UserFridges.getRootAsUserFridges(byteBuffer);
+            if (onServiceResponse != null)
+                onServiceResponse.onSuccess(mUserFridges);
         } catch (Exception e) {
             mUserFridges = null;
+            if (onServiceResponse != null)
+                onServiceResponse.onError(-1, e.getLocalizedMessage());
             Log.e(TAG, e.toString());
-            e.printStackTrace();
-            return null;
         }
-        return mUserFridges;
     }
 
-    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-        for ( int j = 0; j < bytes.length; j++ ) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
-    public static long addUser(final Context context, String cn, String locale) {
+    public static void addUser(String cn, String locale,
+                               final OnServiceResponse onServiceResponse) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         int scn = fbb.createString(cn);
         int sKey = fbb.createString("");
         int slocale = fbb.createString(locale);
-
         User.startUser(fbb);
         User.addId(fbb, 0);
         User.addCn(fbb, scn);
@@ -111,7 +107,6 @@ public class Client {
         // User.addGeo(fbb, Geo.createGeo(fbb, 0.0f, 0.0f, 0));
         int u = User.endUser(fbb);
         fbb.finish(u);
-        long id = 0;
         try {
             AndroidNetworking.post(URL + "add_user.php")
                     .setContentType("application/octet-stream")
@@ -123,26 +118,25 @@ public class Client {
                             ByteBuffer byteBuffer;
                             try {
                                 User u = User.getRootAsUser(ByteBuffer.wrap(response.getBytes()));
-                                ApplicationSettings s = ApplicationSettings.getInstance(context);
-                                s.saveUser(u);
+                                if (onServiceResponse != null)
+                                    onServiceResponse.onSuccess(u);
                                 Log.i(TAG, "User " + u.cn() + " created, id: " + u.id() + ", token:" + u.key() + ", locale: " + u.locale());
                             } catch (Exception e) {
                                 Log.e(TAG, e.toString());
-                                e.printStackTrace();
                             }
                         }
                         @Override
                         public void onError(ANError anError) {
-                            Toast.makeText(Client.mContext, anError.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                            if (onServiceResponse != null)
+                                onServiceResponse.onError(anError.getErrorCode(), anError.getLocalizedMessage());
                             Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
                         }
                     });
         } catch (Exception e) {
+            if (onServiceResponse != null)
+                onServiceResponse.onError(-1, e.getLocalizedMessage());
             Log.e(TAG, e.toString());
-            e.printStackTrace();
-            return 0;
         }
-        return id;
     }
 
     public void setMealCardQty(MealCard mc, int value)

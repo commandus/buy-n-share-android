@@ -21,12 +21,16 @@ import android.widget.Toast;
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.interceptors.GzipRequestInterceptor;
 import com.commandus.svc.Client;
+import com.commandus.svc.OnServiceResponse;
 
 import bs.FridgeUsers;
+import bs.UserFridges;
 import okhttp3.OkHttpClient;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        OnServiceResponse
+{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private ApplicationSettings mApplicationSettings;
@@ -52,10 +56,9 @@ public class MainActivity extends AppCompatActivity
         mToolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(mToolbar);
 
-        mFridgeFragmentPagerAdapter = new FridgeFragmentPagerAdapter(getSupportFragmentManager(), Client.getUserFridges(this));
+        Client.getUserFridges(this, this);
 
         mViewPager = (ViewPager) findViewById(R.id.vp_fridge);
-        mViewPager.setAdapter(mFridgeFragmentPagerAdapter);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -250,4 +253,17 @@ public class MainActivity extends AppCompatActivity
                 getString(R.string.title_activity_fridge_add));
 
     }
+
+    @Override
+    public void onSuccess(Object response) {
+        mFridgeFragmentPagerAdapter = new FridgeFragmentPagerAdapter(getSupportFragmentManager(), Client.lastUserFridges());
+        mViewPager.setAdapter(mFridgeFragmentPagerAdapter);
+    }
+
+    @Override
+    public int onError(int errorcode, String errorDescription) {
+        Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
+        return 0;
+    }
+
 }
