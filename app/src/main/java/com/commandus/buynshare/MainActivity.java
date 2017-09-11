@@ -56,9 +56,10 @@ public class MainActivity extends AppCompatActivity
         mToolbar = (Toolbar) findViewById(R.id.toolbar_main);
         setSupportActionBar(mToolbar);
 
+        mViewPager = (ViewPager) findViewById(R.id.vp_fridge);
+
         Client.getUserFridges(this, this);
 
-        mViewPager = (ViewPager) findViewById(R.id.vp_fridge);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -256,7 +257,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSuccess(Object response) {
-        mFridgeFragmentPagerAdapter = new FridgeFragmentPagerAdapter(getSupportFragmentManager(), Client.lastUserFridges());
+        mFridgeFragmentPagerAdapter = new FridgeFragmentPagerAdapter(getSupportFragmentManager(),
+                (UserFridges) response);
         mViewPager.setAdapter(mFridgeFragmentPagerAdapter);
     }
 

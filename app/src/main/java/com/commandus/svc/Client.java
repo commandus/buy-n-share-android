@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 import bs.FridgePurchases;
 import bs.FridgeUsers;
+import bs.Fridges;
 import bs.Geo;
 import bs.MealCard;
 import bs.Meals;
@@ -33,6 +34,7 @@ public class Client {
     private static Client mInstance = null;
     private static HashMap<Long, Purchases> mFridgePurchases;
     private static Meals mMeals;
+    private static Fridges mFridges;
     private HashMap<Integer, Integer> mMealCardQty;
     private static UserFridges mUserFridges;
     private static Context mContext;
@@ -74,11 +76,11 @@ public class Client {
     }
 
     /**
-     * Retuen UserFridges
+     * Return UserFridges
      * @param context
-     * @return
+     * @return UserFridges
      */
-    public static void getUserFridges(Context context, final OnServiceResponse onServiceResponse) {
+    public static void getUserFridgesTest(Context context, final OnServiceResponse onServiceResponse) {
         ByteBuffer byteBuffer;
         try {
             byteBuffer = ByteBuffer.wrap(Helper.loadResource(context, R.raw.ls_userfridge_2));
@@ -87,6 +89,90 @@ public class Client {
                 onServiceResponse.onSuccess(mUserFridges);
         } catch (Exception e) {
             mUserFridges = null;
+            if (onServiceResponse != null)
+                onServiceResponse.onError(-1, e.getLocalizedMessage());
+            Log.e(TAG, e.toString());
+        }
+    }
+
+    /**
+     * Return UserFridges
+     * @param context
+     * @return UserFridges
+     */
+    public static void getUserFridges(Context context, final OnServiceResponse onServiceResponse) {
+        ByteBuffer byteBuffer;
+        try {
+            AndroidNetworking.post(URL + "ls_userfridge.php")
+                    .setContentType("application/octet-stream")
+                    .addQueryParameter("user_id", String.valueOf(ApplicationSettings.getInstance(context).getUserId()))
+                    .build()
+                    .getAsString(new StringRequestListener() {
+                        @Override
+                        public void onResponse(String response) {
+                            ByteBuffer byteBuffer;
+                            try {
+                                mUserFridges = UserFridges.getRootAsUserFridges(ByteBuffer.wrap(response.getBytes()));
+                                if (onServiceResponse != null)
+                                    onServiceResponse.onSuccess(mUserFridges);
+                                Log.i(TAG, "User fridges count: " + mUserFridges.mealcardsLength());
+                            } catch (Exception e) {
+                                Log.e(TAG, e.toString());
+                            }
+                        }
+                        @Override
+                        public void onError(ANError anError) {
+                            if (onServiceResponse != null)
+                                onServiceResponse.onError(anError.getErrorCode(), anError.getLocalizedMessage());
+                            Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
+                        }
+                    });
+        } catch (Exception e) {
+            mUserFridges = null;
+            if (onServiceResponse != null)
+                onServiceResponse.onError(-1, e.getLocalizedMessage());
+            Log.e(TAG, e.toString());
+        }
+    }
+
+    /**
+     * Return List of fridges
+     * @param context
+     * @return UserFridges
+     */
+    public static void lsFridges(Context context, String locale, final OnServiceResponse onServiceResponse) {
+        ByteBuffer byteBuffer;
+        try {
+            AndroidNetworking.post(URL + "ls_fridge.php")
+                    .setContentType("application/octet-stream")
+                    .addQueryParameter("locale", context.getString(R.string.default_locale))
+                    .build()
+                    .getAsString(new StringRequestListener() {
+                        @Override
+                        public void onResponse(String response) {
+                            ByteBuffer byteBuffer;
+                            try {
+                                mFridges = Fridges.getRootAsFridges(ByteBuffer.wrap(response.getBytes()));
+                                if (onServiceResponse != null)
+                                    onServiceResponse.onSuccess(mFridges);
+                                Log.i(TAG, "Fridges count: " + mFridges.fridgesLength());
+                                for (int f = 0; f < mFridges.fridgesLength(); f++) {
+//                                    Log.i(TAG, "Fridge id: " + mFridges.fridges(f).id());
+//                                    Log.i(TAG, "Fridge cn: " + mFridges.fridges(f).cn());
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, e.toString());
+                            }
+                        }
+                        @Override
+                        public void onError(ANError anError) {
+                            if (onServiceResponse != null)
+                                onServiceResponse.onError(anError.getErrorCode(), anError.getLocalizedMessage());
+                            Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
+                        }
+                    });
+        } catch (Exception e) {
+            mFridges = null;
             if (onServiceResponse != null)
                 onServiceResponse.onError(-1, e.getLocalizedMessage());
             Log.e(TAG, e.toString());
