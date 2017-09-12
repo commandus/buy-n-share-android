@@ -2,7 +2,6 @@ package com.commandus.svc;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
@@ -13,13 +12,13 @@ import com.commandus.buynshare.R;
 import com.google.flatbuffers.FlatBufferBuilder;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
-import bs.FridgePurchases;
+import bs.Fridge;
+import bs.FridgeUser;
 import bs.FridgeUsers;
 import bs.Fridges;
-import bs.Geo;
 import bs.MealCard;
 import bs.Meals;
 import bs.Purchase;
@@ -31,6 +30,12 @@ public class Client {
     private static final String URL = "http://f.commandus.com/a/";
 
     private static final String TAG = Client.class.getSimpleName();
+    public static final int CODE_GETUSERFRIDGESTEST = 1;
+    public static final int CODE_GETUSERFRIDGES = 2;
+    public static final int CODE_LSFRIDGES = 3;
+    public static final int CODE_ADDUSER = 4;
+    public static final int CODE_ADDFRIDGEUSER = 5;
+
     private static Client mInstance = null;
     private static HashMap<Long, Purchases> mFridgePurchases;
     private static Meals mMeals;
@@ -86,11 +91,11 @@ public class Client {
             byteBuffer = ByteBuffer.wrap(Helper.loadResource(context, R.raw.ls_userfridge_2));
             mUserFridges = UserFridges.getRootAsUserFridges(byteBuffer);
             if (onServiceResponse != null)
-                onServiceResponse.onSuccess(mUserFridges);
+                onServiceResponse.onSuccess(CODE_GETUSERFRIDGESTEST, mUserFridges);
         } catch (Exception e) {
             mUserFridges = null;
             if (onServiceResponse != null)
-                onServiceResponse.onError(-1, e.getLocalizedMessage());
+                onServiceResponse.onError(CODE_GETUSERFRIDGESTEST, -1, e.getLocalizedMessage());
             Log.e(TAG, e.toString());
         }
     }
@@ -114,7 +119,7 @@ public class Client {
                             try {
                                 mUserFridges = UserFridges.getRootAsUserFridges(ByteBuffer.wrap(response.getBytes()));
                                 if (onServiceResponse != null)
-                                    onServiceResponse.onSuccess(mUserFridges);
+                                    onServiceResponse.onSuccess(CODE_GETUSERFRIDGES, mUserFridges);
                                 Log.i(TAG, "User fridges count: " + mUserFridges.mealcardsLength());
                             } catch (Exception e) {
                                 Log.e(TAG, e.toString());
@@ -123,14 +128,14 @@ public class Client {
                         @Override
                         public void onError(ANError anError) {
                             if (onServiceResponse != null)
-                                onServiceResponse.onError(anError.getErrorCode(), anError.getLocalizedMessage());
+                                onServiceResponse.onError(CODE_GETUSERFRIDGES, anError.getErrorCode(), anError.getLocalizedMessage());
                             Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
                         }
                     });
         } catch (Exception e) {
             mUserFridges = null;
             if (onServiceResponse != null)
-                onServiceResponse.onError(-1, e.getLocalizedMessage());
+                onServiceResponse.onError(CODE_GETUSERFRIDGES, -1, e.getLocalizedMessage());
             Log.e(TAG, e.toString());
         }
     }
@@ -154,7 +159,7 @@ public class Client {
                             try {
                                 mFridges = Fridges.getRootAsFridges(ByteBuffer.wrap(response.getBytes()));
                                 if (onServiceResponse != null)
-                                    onServiceResponse.onSuccess(mFridges);
+                                    onServiceResponse.onSuccess(CODE_LSFRIDGES, mFridges);
                                 Log.i(TAG, "Fridges count: " + mFridges.fridgesLength());
                                 for (int f = 0; f < mFridges.fridgesLength(); f++) {
 //                                    Log.i(TAG, "Fridge id: " + mFridges.fridges(f).id());
@@ -167,14 +172,14 @@ public class Client {
                         @Override
                         public void onError(ANError anError) {
                             if (onServiceResponse != null)
-                                onServiceResponse.onError(anError.getErrorCode(), anError.getLocalizedMessage());
+                                onServiceResponse.onError(CODE_LSFRIDGES, anError.getErrorCode(), anError.getLocalizedMessage());
                             Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
                         }
                     });
         } catch (Exception e) {
             mFridges = null;
             if (onServiceResponse != null)
-                onServiceResponse.onError(-1, e.getLocalizedMessage());
+                onServiceResponse.onError(CODE_LSFRIDGES, -1, e.getLocalizedMessage());
             Log.e(TAG, e.toString());
         }
     }
@@ -205,7 +210,7 @@ public class Client {
                             try {
                                 User u = User.getRootAsUser(ByteBuffer.wrap(response.getBytes()));
                                 if (onServiceResponse != null)
-                                    onServiceResponse.onSuccess(u);
+                                    onServiceResponse.onSuccess(CODE_ADDUSER, u);
                                 Log.i(TAG, "User " + u.cn() + " created, id: " + u.id() + ", token:" + u.key() + ", locale: " + u.locale());
                             } catch (Exception e) {
                                 Log.e(TAG, e.toString());
@@ -214,13 +219,54 @@ public class Client {
                         @Override
                         public void onError(ANError anError) {
                             if (onServiceResponse != null)
-                                onServiceResponse.onError(anError.getErrorCode(), anError.getLocalizedMessage());
+                                onServiceResponse.onError(CODE_ADDUSER, anError.getErrorCode(), anError.getLocalizedMessage());
                             Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
                         }
                     });
         } catch (Exception e) {
             if (onServiceResponse != null)
-                onServiceResponse.onError(-1, e.getLocalizedMessage());
+                onServiceResponse.onError(CODE_ADDUSER, -1, e.getLocalizedMessage());
+            Log.e(TAG, e.toString());
+        }
+    }
+
+    public void addFridgeUser(long userId, Fridge fridge, final OnServiceResponse onServiceResponse, long balance) {
+        FlatBufferBuilder fbb = new FlatBufferBuilder(0);
+        User.startUser(fbb);
+        User.addId(fbb, 0);
+        int u = User.endUser(fbb);
+        Date start = new Date();
+        FridgeUser.createFridgeUser(fbb, fridge.id(), u, start.getTime()/1000, 0, balance);
+
+        fbb.finish(u);
+        try {
+            AndroidNetworking.post(URL + "add_fridgeuser.php")
+                    .setContentType("application/octet-stream")
+                    .addByteBody(fbb.dataBuffer().array())
+                    .build()
+                    .getAsString(new StringRequestListener() {
+                        @Override
+                        public void onResponse(String response) {
+                            ByteBuffer byteBuffer;
+                            try {
+                                User u = User.getRootAsUser(ByteBuffer.wrap(response.getBytes()));
+                                if (onServiceResponse != null)
+                                    onServiceResponse.onSuccess(CODE_ADDFRIDGEUSER, u);
+                                Log.i(TAG, "User " + u.cn() + " created, id: " + u.id() + ", token:" + u.key() + ", locale: " + u.locale());
+                            } catch (Exception e) {
+                                Log.e(TAG, e.toString());
+                            }
+                        }
+                        @Override
+                        public void onError(ANError anError) {
+                            if (onServiceResponse != null)
+                                onServiceResponse.onError(CODE_ADDFRIDGEUSER, anError.getErrorCode(), anError.getLocalizedMessage());
+                            Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
+                        }
+                    });
+        } catch (Exception e) {
+            if (onServiceResponse != null)
+                onServiceResponse.onError(CODE_ADDFRIDGEUSER, -1, e.getLocalizedMessage());
             Log.e(TAG, e.toString());
         }
     }
@@ -256,6 +302,18 @@ public class Client {
 
     public static UserFridges lastUserFridges() {
         return mUserFridges;
+    }
+
+    public static Fridges lastFridges() {
+        return mFridges;
+    }
+
+    public static Fridge lastFridge(int fridge_pos) {
+        if (mFridges == null)
+            return null;
+        if (fridge_pos < 0 || fridge_pos >= mFridges.fridgesLength())
+            return null;
+        return mFridges.fridges(fridge_pos);
     }
 
     /**
@@ -343,4 +401,5 @@ public class Client {
     public void setContext(Context context) {
         this.mContext = context;
     }
+
 }

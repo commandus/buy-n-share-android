@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -18,6 +19,7 @@ public class FridgeListActivity extends AppCompatActivity
         implements OnServiceResponse
 {
 
+    public static final String PAR_FRIDGE_POS = "fridge_pos";
     private FridgeAdapter lvFridgesAdapter;
     private ListView mListViewFridges;
     private Client mClient;
@@ -40,19 +42,28 @@ public class FridgeListActivity extends AppCompatActivity
         });
 
         mListViewFridges = (ListView) findViewById(R.id.listview_fridge_list);
+        mListViewFridges.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Intent intent = new Intent();
+                intent.putExtra(PAR_FRIDGE_POS, position);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
 
         mClient = Client.getInstance(this);
         mClient.lsFridges(this, getString(R.string.default_locale), this);
     }
 
     @Override
-    public void onSuccess(Object response) {
+    public void onSuccess(int code, Object response) {
         lvFridgesAdapter  = new FridgeAdapter(mClient, (Fridges) response);
         mListViewFridges.setAdapter(lvFridgesAdapter);
     }
 
     @Override
-    public int onError(int errorcode, String errorDescription) {
+    public int onError(int code, int errorcode, String errorDescription) {
         Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
         return 0;
     }

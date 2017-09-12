@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity
 {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    private static final int RET_FRIDGE = 1;
     private ApplicationSettings mApplicationSettings;
     private Client mClient;
     private ViewPager mViewPager;
@@ -212,13 +213,27 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case R.id.nav_fridge_list_around:
                     intent = new Intent(MainActivity.this, FridgeListActivity.class);
-                    startActivity(intent);
+                    startActivityForResult(intent, RET_FRIDGE);
                     break;
             }
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null)
+            return;
+        if (requestCode == RET_FRIDGE) {
+            int fridge_pos = data.getIntExtra(FridgeListActivity.PAR_FRIDGE_POS, 0);
+            if (fridge_pos > 0) {
+                // add user to the fridge
+                long balance = 0L;
+                mClient.addFridgeUser(mApplicationSettings.getUserId(), Client.lastFridge(fridge_pos), this, balance);
+            }
+        }
     }
 
     private void setFridgePage(int position) {
@@ -256,14 +271,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSuccess(Object response) {
-        mFridgeFragmentPagerAdapter = new FridgeFragmentPagerAdapter(getSupportFragmentManager(),
-                (UserFridges) response);
-        mViewPager.setAdapter(mFridgeFragmentPagerAdapter);
+    public void onSuccess(int code, Object response) {
+        switch (code) {
+            case Client.CODE_LSFRIDGES:
+            case Client.CODE_ADDFRIDGEUSER:
+                mFridgeFragmentPagerAdapter = new FridgeFragmentPagerAdapter(getSupportFragmentManager(),
+                        (UserFridges) response);
+                mViewPager.setAdapter(mFridgeFragmentPagerAdapter);
+                break;
+        }
     }
 
     @Override
-    public int onError(int errorcode, String errorDescription) {
+    public int onError(int code, int errorcode, String errorDescription) {
         Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
         return 0;
     }

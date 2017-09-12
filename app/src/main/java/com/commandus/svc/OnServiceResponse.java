@@ -1,6 +1,6 @@
 package com.commandus.svc;
 
 public interface OnServiceResponse {
-    void onSuccess(Object response);
-    int onError(int errorcode, String errorDescription);
+    void onSuccess(int code, Object response);
+    int onError(int code, int errorcode, String errorDescription);
 }

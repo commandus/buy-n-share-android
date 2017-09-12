@@ -80,7 +80,7 @@ public class UserEditActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSuccess(Object response) {
+    public void onSuccess(int code, Object response) {
         ApplicationSettings s = ApplicationSettings.getInstance(this);
         s.saveUser((User)response);
         // Toast.makeText(this, "Success", Toast.LENGTH_LONG).show();
@@ -88,7 +88,7 @@ public class UserEditActivity extends AppCompatActivity
     }
 
     @Override
-    public int onError(int errorcode, String errorDescription) {
+    public int onError(int code, int errorcode, String errorDescription) {
         Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
         return 0;
     }
