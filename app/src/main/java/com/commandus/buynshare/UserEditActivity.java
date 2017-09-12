@@ -3,19 +3,15 @@ package com.commandus.buynshare;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.interceptors.GzipRequestInterceptor;
 import com.commandus.svc.Client;
 import com.commandus.svc.OnServiceResponse;
 
 import bs.User;
-import okhttp3.OkHttpClient;
 
 public class UserEditActivity extends AppCompatActivity
     implements OnServiceResponse
@@ -28,11 +24,6 @@ public class UserEditActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_edit);
-
-        OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                .addInterceptor(new GzipRequestInterceptor())
-                .build();
-        AndroidNetworking.initialize(getApplicationContext(),okHttpClient);
 
         Toolbar toolbarUserEdit = (Toolbar) findViewById(R.id.toolbar_user_edit);
         mCN = (EditText) findViewById(R.id.et_user_cn);

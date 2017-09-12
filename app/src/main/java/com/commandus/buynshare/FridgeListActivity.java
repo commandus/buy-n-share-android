@@ -3,7 +3,6 @@ package com.commandus.buynshare;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -14,7 +13,6 @@ import com.commandus.svc.Client;
 import com.commandus.svc.OnServiceResponse;
 
 import bs.Fridges;
-import bs.UserFridges;
 
 public class FridgeListActivity extends AppCompatActivity
         implements OnServiceResponse
@@ -28,6 +26,7 @@ public class FridgeListActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fridge_list);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_fridge_list);
         setSupportActionBar(toolbar);
 
