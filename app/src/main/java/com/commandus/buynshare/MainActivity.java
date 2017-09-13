@@ -135,10 +135,19 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        if (mClient.lastUserFridges() == null)
+        if (mClient.lastUserFridges() == null) {
+            // Remove delete fridge
+            disableMenuRemoveFridge(menu);
             return true;
+        }
+        if (mClient.lastUserFridges().mealcardsLength() ==0)
+            // Remove delete fridge
+            disableMenuRemoveFridge(menu);
+
         int position =  mViewPager.getCurrentItem();
         FridgeUsers fu =  mClient.getFridgeUsers(position);
+        if (fu == null)
+            return true;
         // SubMenu subMenu = menu.addSubMenu(getString(R.string.nav_my_fridges));
         for (int u = 0; u < fu.fridgeusersLength(); u++) {
             String s = fu.fridgeusers(u).user().cn() + ": " + Long.toString(fu.fridgeusers(u).balance());
@@ -148,6 +157,12 @@ public class MainActivity extends AppCompatActivity
                     s);
         }
         return true;
+    }
+
+    private void disableMenuRemoveFridge(Menu menu) {
+        MenuItem mi = menu.findItem(R.id.action_rmfridge);
+        if (mi != null)
+            mi.setEnabled(false);
     }
 
     @Override
@@ -227,8 +242,8 @@ public class MainActivity extends AppCompatActivity
         if (data == null)
             return;
         if (requestCode == RET_FRIDGE) {
-            int fridge_pos = data.getIntExtra(FridgeListActivity.PAR_FRIDGE_POS, 0);
-            if (fridge_pos > 0) {
+            int fridge_pos = data.getIntExtra(FridgeListActivity.PAR_FRIDGE_POS, -1);
+            if (fridge_pos >= 0) {
                 // add user to the fridge
                 long balance = 0L;
                 mClient.addFridgeUser(mApplicationSettings.getUserId(), Client.lastFridge(fridge_pos), this, balance);
@@ -274,12 +289,17 @@ public class MainActivity extends AppCompatActivity
     public void onSuccess(int code, Object response) {
         switch (code) {
             case Client.CODE_LSFRIDGES:
+                break;
             case Client.CODE_ADDFRIDGEUSER:
-                mFridgeFragmentPagerAdapter = new FridgeFragmentPagerAdapter(getSupportFragmentManager(),
-                        (UserFridges) response);
-                mViewPager.setAdapter(mFridgeFragmentPagerAdapter);
                 break;
         }
+        refreshUserFridges((UserFridges) response);
+    }
+
+    private void refreshUserFridges(UserFridges userFridges) {
+        mFridgeFragmentPagerAdapter = new FridgeFragmentPagerAdapter(getSupportFragmentManager(),
+                userFridges);
+        mViewPager.setAdapter(mFridgeFragmentPagerAdapter);
     }
 
     @Override

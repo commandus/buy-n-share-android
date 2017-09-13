@@ -201,7 +201,7 @@ public class Client {
         try {
             AndroidNetworking.post(URL + "add_user.php")
                     .setContentType("application/octet-stream")
-                    .addByteBody(fbb.dataBuffer().array())
+                    .addByteBody(Helper.getFBBytes(fbb))
                     .build()
                     .getAsString(new StringRequestListener() {
                         @Override
@@ -232,17 +232,27 @@ public class Client {
 
     public void addFridgeUser(long userId, Fridge fridge, final OnServiceResponse onServiceResponse, long balance) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
-        User.startUser(fbb);
-        User.addId(fbb, 0);
-        int u = User.endUser(fbb);
         Date start = new Date();
-        FridgeUser.createFridgeUser(fbb, fridge.id(), u, start.getTime()/1000, 0, balance);
+        int scn = fbb.createString("");
+        int sKey = fbb.createString("");
+        int slocale = fbb.createString(mContext.getString(R.string.default_locale));
+        User.startUser(fbb);
+        User.addId(fbb, userId);
+        User.addCn(fbb, scn);
+        User.addKey(fbb, sKey);
+        User.addLocale(fbb, slocale);
+        int u = User.endUser(fbb);
+        balance = 100;
+        long finish = 100;
+        int fu = FridgeUser.createFridgeUser(fbb, fridge.id(), u, start.getTime()/1000, finish, balance);
+        fbb.finish(fu);
+        FridgeUser fut = FridgeUser.getRootAsFridgeUser(fbb.dataBuffer());
+        Log.i(TAG, "User id: " + Long.toString(fut.user().id()));
 
-        fbb.finish(u);
         try {
             AndroidNetworking.post(URL + "add_fridgeuser.php")
                     .setContentType("application/octet-stream")
-                    .addByteBody(fbb.dataBuffer().array())
+                    .addByteBody(Helper.getFBBytes(fbb))
                     .build()
                     .getAsString(new StringRequestListener() {
                         @Override

@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 
+import com.google.flatbuffers.FlatBufferBuilder;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -117,4 +119,9 @@ public class Helper {
         return new String(hexChars);
     }
 
+    public static byte[] getFBBytes(FlatBufferBuilder fbb) {
+        byte[] arr = new byte[fbb.dataBuffer().remaining()];
+        fbb.dataBuffer().get(arr);
+        return arr;
+    }
 }
