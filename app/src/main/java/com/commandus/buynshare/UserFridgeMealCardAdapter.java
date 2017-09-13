@@ -1,6 +1,7 @@
 package com.commandus.buynshare;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,17 @@ import bs.FridgeMealCards;
 import bs.UserFridges;
 
 public class UserFridgeMealCardAdapter extends BaseAdapter {
+    private static final String TAG = UserFridgeMealCardAdapter.class.getSimpleName();
     private UserFridges mUserFridges;
     private int mPosition;
     private Client mClient;
 
     private FridgeMealCards getMealCards()
     {
+        if (mUserFridges == null || mPosition < 0 || mPosition >= mUserFridges.mealcardsLength()) {
+            Log.e(TAG, "getMealCards position wrong: " + Integer.toString(mPosition));
+            return null;
+        }
         return mUserFridges.mealcards(mPosition);
     }
 
@@ -35,7 +41,10 @@ public class UserFridgeMealCardAdapter extends BaseAdapter {
     public int getCount() {
         if (mUserFridges == null)
             return 0;
-        return getMealCards().mealcardsLength();
+        FridgeMealCards mc = getMealCards();
+        if (mc == null)
+            return 0;
+        return mc.mealcardsLength();
     }
 
     @Override
