@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.OkHttpResponseListener;
 import com.androidnetworking.interfaces.StringRequestListener;
 import com.commandus.buynshare.ApplicationSettings;
 import com.commandus.buynshare.Helper;
@@ -25,6 +26,7 @@ import bs.Purchase;
 import bs.Purchases;
 import bs.User;
 import bs.UserFridges;
+import okhttp3.Response;
 
 public class Client {
     private static final String URL = "http://f.commandus.com/a/";
@@ -59,7 +61,7 @@ public class Client {
             mMeals = Meals.getRootAsMeals(byteBuffer);
         } catch (Exception e) {
             mMeals = null;
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "getMeals() " + e.toString());
             e.printStackTrace();
             return null;
         }
@@ -73,7 +75,7 @@ public class Client {
             mFridgePurchases.put(fridge_id, Purchases.getRootAsPurchases(byteBuffer));
         } catch (Exception e) {
             mUserFridges = null;
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "getFridgePurchases() " + e.toString());
             e.printStackTrace();
             return null;
         }
@@ -96,7 +98,8 @@ public class Client {
             mUserFridges = null;
             if (onServiceResponse != null)
                 onServiceResponse.onError(CODE_GETUSERFRIDGESTEST, -1, e.getLocalizedMessage());
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "getUserFridgesTest() " + e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -105,26 +108,27 @@ public class Client {
      * @param context
      * @return UserFridges
      */
-    public static void getUserFridges(Context context, final OnServiceResponse onServiceResponse) {
+    public static void getUserFridges(final Context context, final OnServiceResponse onServiceResponse) {
         ByteBuffer byteBuffer;
         try {
             AndroidNetworking.post(URL + "ls_userfridge.php")
                     .setContentType("application/octet-stream")
                     .addQueryParameter("user_id", String.valueOf(ApplicationSettings.getInstance(context).getUserId()))
                     .build()
-                    .getAsString(new StringRequestListener() {
+                    .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
-                        public void onResponse(String response) {
+                        public void onResponse(Response response) {
                             ByteBuffer byteBuffer;
                             try {
-                                mUserFridges = UserFridges.getRootAsUserFridges(ByteBuffer.wrap(response.getBytes()));
+                                mUserFridges = UserFridges.getRootAsUserFridges(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
                                     onServiceResponse.onSuccess(CODE_GETUSERFRIDGES, mUserFridges);
-                                Log.i(TAG, "User fridges count: " + mUserFridges.mealcardsLength());
                             } catch (Exception e) {
-                                Log.e(TAG, e.toString());
+                                Log.e(TAG, "getUserFridges(" + String.valueOf(ApplicationSettings.getInstance(context).getUserId()) + ") " + e.toString());
+                                e.printStackTrace();
                             }
                         }
+
                         @Override
                         public void onError(ANError anError) {
                             if (onServiceResponse != null)
@@ -132,11 +136,13 @@ public class Client {
                             Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
                         }
                     });
+
         } catch (Exception e) {
             mUserFridges = null;
             if (onServiceResponse != null)
                 onServiceResponse.onError(CODE_GETUSERFRIDGES, -1, e.getLocalizedMessage());
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "getUserFridges() " + e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -152,12 +158,12 @@ public class Client {
                     .setContentType("application/octet-stream")
                     .addQueryParameter("locale", context.getString(R.string.default_locale))
                     .build()
-                    .getAsString(new StringRequestListener() {
+                    .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
-                        public void onResponse(String response) {
+                        public void onResponse(Response response) {
                             ByteBuffer byteBuffer;
                             try {
-                                mFridges = Fridges.getRootAsFridges(ByteBuffer.wrap(response.getBytes()));
+                                mFridges = Fridges.getRootAsFridges(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
                                     onServiceResponse.onSuccess(CODE_LSFRIDGES, mFridges);
                                 Log.i(TAG, "Fridges count: " + mFridges.fridgesLength());
@@ -166,7 +172,8 @@ public class Client {
 //                                    Log.i(TAG, "Fridge cn: " + mFridges.fridges(f).cn());
                                 }
                             } catch (Exception e) {
-                                Log.e(TAG, e.toString());
+                                Log.e(TAG, "lsFridges() " + e.toString());
+                                e.printStackTrace();
                             }
                         }
                         @Override
@@ -180,7 +187,8 @@ public class Client {
             mFridges = null;
             if (onServiceResponse != null)
                 onServiceResponse.onError(CODE_LSFRIDGES, -1, e.getLocalizedMessage());
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "lsFridges() " + e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -203,17 +211,18 @@ public class Client {
                     .setContentType("application/octet-stream")
                     .addByteBody(Helper.getFBBytes(fbb))
                     .build()
-                    .getAsString(new StringRequestListener() {
+                    .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
-                        public void onResponse(String response) {
+                        public void onResponse(Response response) {
                             ByteBuffer byteBuffer;
                             try {
-                                User u = User.getRootAsUser(ByteBuffer.wrap(response.getBytes()));
+                                User u = User.getRootAsUser(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
                                     onServiceResponse.onSuccess(CODE_ADDUSER, u);
                                 Log.i(TAG, "User " + u.cn() + " created, id: " + u.id() + ", token:" + u.key() + ", locale: " + u.locale());
                             } catch (Exception e) {
-                                Log.e(TAG, e.toString());
+                                Log.e(TAG, "addUser() " + e.toString());
+                                e.printStackTrace();
                             }
                         }
                         @Override
@@ -227,6 +236,7 @@ public class Client {
             if (onServiceResponse != null)
                 onServiceResponse.onError(CODE_ADDUSER, -1, e.getLocalizedMessage());
             Log.e(TAG, e.toString());
+            e.printStackTrace();
         }
     }
 
@@ -242,9 +252,7 @@ public class Client {
         User.addKey(fbb, sKey);
         User.addLocale(fbb, slocale);
         int u = User.endUser(fbb);
-        balance = 100;
-        long finish = 100;
-        int fu = FridgeUser.createFridgeUser(fbb, fridge.id(), u, start.getTime()/1000, finish, balance);
+        int fu = FridgeUser.createFridgeUser(fbb, fridge.id(), u, start.getTime()/1000, 0, balance);
         fbb.finish(fu);
         FridgeUser fut = FridgeUser.getRootAsFridgeUser(fbb.dataBuffer());
         Log.i(TAG, "User id: " + Long.toString(fut.user().id()));
@@ -254,17 +262,18 @@ public class Client {
                     .setContentType("application/octet-stream")
                     .addByteBody(Helper.getFBBytes(fbb))
                     .build()
-                    .getAsString(new StringRequestListener() {
+                    .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
-                        public void onResponse(String response) {
+                        public void onResponse(Response response) {
                             ByteBuffer byteBuffer;
                             try {
-                                User u = User.getRootAsUser(ByteBuffer.wrap(response.getBytes()));
+                                User u = User.getRootAsUser(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
                                     onServiceResponse.onSuccess(CODE_ADDFRIDGEUSER, u);
                                 Log.i(TAG, "User " + u.cn() + " created, id: " + u.id() + ", token:" + u.key() + ", locale: " + u.locale());
                             } catch (Exception e) {
-                                Log.e(TAG, e.toString());
+                                Log.e(TAG, "addFridgeUser() " + e.toString());
+                                e.printStackTrace();
                             }
                         }
                         @Override
@@ -277,7 +286,8 @@ public class Client {
         } catch (Exception e) {
             if (onServiceResponse != null)
                 onServiceResponse.onError(CODE_ADDFRIDGEUSER, -1, e.getLocalizedMessage());
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "addFridgeUser() " + e.toString());
+            e.printStackTrace();
         }
     }
 
