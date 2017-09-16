@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AlertDialog;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.SubMenu;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -34,12 +37,14 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RET_FRIDGE = 1;
+    private static final int RET_NEW_USER = 2;
     private ApplicationSettings mApplicationSettings;
     private Client mClient;
     private ViewPager mViewPager;
     private FridgeFragmentPagerAdapter mFridgeFragmentPagerAdapter;
     private Toolbar mToolbar;
     private NavigationView mNavigationView;
+    private ContentLoadingProgressBar mProgressBarMain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,19 +64,20 @@ public class MainActivity extends AppCompatActivity
 
         mViewPager = (ViewPager) findViewById(R.id.vp_fridge);
 
+        mProgressBarMain = (ContentLoadingProgressBar) findViewById(R.id.progressBarMain);
+        mProgressBarMain.show();
+
         Client.getUserFridges(this, this);
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                showFridgeDetails(position);
-                buildNavigationMenu();
-                buildFridgeMenu(position);
+
             }
 
             @Override
             public void onPageSelected(int position) {
-                showFridgeDetails(position);
+                navigateToFridgePage(position);
             }
 
             @Override
@@ -97,12 +103,20 @@ public class MainActivity extends AppCompatActivity
         mNavigationView.setNavigationItemSelectedListener(this);
     }
 
+    private void navigateToFridgePage(int position) {
+        showFridgeDetails(position);
+        buildNavigationMenu();
+        buildFridgeMenu(position);
+    }
+
     private void showFridgeDetails(int position) {
+        String s = getString(R.string.app_name);
         if (mClient.lastUserFridges()!= null) {
             if (mClient.lastUserFridges().mealcardsLength() > position && position >= 0) {
-                mToolbar.setTitle(mClient.lastUserFridges().mealcards(position).fridge().cn());
+                s = mClient.lastUserFridges().mealcards(position).fridge().cn();
             }
         }
+        mToolbar.setTitle(s);
     }
 
     @Override
@@ -149,8 +163,26 @@ public class MainActivity extends AppCompatActivity
         if (fu == null)
             return true;
         // SubMenu subMenu = menu.addSubMenu(getString(R.string.nav_my_fridges));
+        long id = mApplicationSettings.getUserId();
+
+        SpannableString s;
+        // me
         for (int u = 0; u < fu.fridgeusersLength(); u++) {
-            String s = fu.fridgeusers(u).user().cn() + ": " + Long.toString(fu.fridgeusers(u).balance());
+            if (fu.fridgeusers(u).user().id() != id)
+                continue;
+            s = new SpannableString(fu.fridgeusers(u).user().cn() + ": " + Long.toString(fu.fridgeusers(u).balance()));
+            MenuItem item = menu.add(R.id.options_group_fridge_users,
+                    -1 - u,
+                    Menu.NONE,
+                    s);
+            s.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, s.length(), 0);
+            item.setEnabled(false);
+        }
+        // others
+        for (int u = 0; u < fu.fridgeusersLength(); u++) {
+            if (fu.fridgeusers(u).user().id() == id)
+                continue;
+            s = new SpannableString(fu.fridgeusers(u).user().cn() + ": " + Long.toString(fu.fridgeusers(u).balance()));
             MenuItem item = menu.add(R.id.options_group_fridge_users,
                     -1 - u,
                     Menu.NONE,
@@ -203,9 +235,9 @@ public class MainActivity extends AppCompatActivity
                                 mClient.rmUser();
                                 mApplicationSettings.clearUser();
                                 Toast.makeText(MainActivity.this, R.string.action_rm_user_done, Toast.LENGTH_SHORT).show();
-                                mFridgeFragmentPagerAdapter.notifyDataSetChanged();
+                                refreshUserFridges(null);
                                 Intent intent = new Intent(MainActivity.this, UserEditActivity.class);
-                                startActivity(intent);
+                                startActivityForResult(intent, RET_NEW_USER);
                             }})
                         .setNegativeButton(android.R.string.no, null).show();
                 return true;
@@ -241,19 +273,23 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data == null)
             return;
-        if (requestCode == RET_FRIDGE) {
-            int fridge_pos = data.getIntExtra(FridgeListActivity.PAR_FRIDGE_POS, -1);
-            if (fridge_pos >= 0) {
-                // add user to the fridge
-                long balance = 0L;
-                mClient.addFridgeUser(mApplicationSettings.getUserId(), Client.lastFridge(fridge_pos), this, balance);
-            }
+        switch (requestCode) {
+            case RET_FRIDGE:
+                int fridge_pos = data.getIntExtra(FridgeListActivity.PAR_FRIDGE_POS, -1);
+                if (fridge_pos >= 0) {
+                    // add user to the fridge
+                    long balance = 0L;
+                    mClient.addFridgeUser(mApplicationSettings.getUserId(), Client.lastFridge(fridge_pos), this, balance);
+                }
+                break;
+            case RET_NEW_USER:
+                Client.getUserFridges(this, this);
+                break;
         }
     }
 
     private void setFridgePage(int position) {
         mViewPager.setCurrentItem(position);
-        // showFridgeDetails(position);
     }
 
     private void buildNavigationMenu() {
@@ -293,13 +329,30 @@ public class MainActivity extends AppCompatActivity
             case Client.CODE_ADDFRIDGEUSER:
                 break;
         }
+        mProgressBarMain.hide();
         refreshUserFridges((UserFridges) response);
+        if (response == null)
+            return;
+        if (((UserFridges) response).mealcardsLength() == 0) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.action_add_fridge)
+                    .setMessage(R.string.action_add_fridge_confirm)
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            Intent intent = new Intent(MainActivity.this, FridgeListActivity.class);
+                            startActivityForResult(intent, RET_FRIDGE);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, null).show();
+        }
     }
 
     private void refreshUserFridges(UserFridges userFridges) {
         mFridgeFragmentPagerAdapter = new FridgeFragmentPagerAdapter(getSupportFragmentManager(),
                 userFridges);
         mViewPager.setAdapter(mFridgeFragmentPagerAdapter);
+        navigateToFridgePage(0);
     }
 
     @Override
@@ -307,5 +360,4 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
         return 0;
     }
-
 }

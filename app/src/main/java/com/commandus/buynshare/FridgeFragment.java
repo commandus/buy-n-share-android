@@ -33,6 +33,10 @@ public class FridgeFragment extends Fragment {
         mPage = args.getInt(ARG_PAGE);
 
         mListViewUserFridge = (ListView) rootView.findViewById(R.id.lv_meal_list);
+
+        View emptyList = rootView.findViewById(R.id.tv_meal_list_empty);
+        mListViewUserFridge.setEmptyView(emptyList);
+
         if (mListViewUserFridge != null) {
             mUserFridgeAdapter = new UserFridgeMealCardAdapter(mClient, Client.lastUserFridges(), mPage);
             mListViewUserFridge.setAdapter(mUserFridgeAdapter);

@@ -34,5 +34,7 @@
     <string name="action_rm_user_confirm">Удаление аккаунта пользователя влечет потерю всей информации о холодильниках и позднее удаление нельзя отменить. Подтверждаете удаление?</string>
     <string name="action_rm_user_done">Аккаунт пользователя удален.</string>
     <string name="error_empty_cn">Введите имя</string>
+    <string name="msg_no_fridge_meal_items">Пока пусто.</string>
+    <string name="action_add_fridge_confirm">Список ваших холодильников пуст. Добавить холодильник?</string>
 
 </resources>

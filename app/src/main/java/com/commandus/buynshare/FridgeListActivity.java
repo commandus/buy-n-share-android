@@ -3,6 +3,7 @@ package com.commandus.buynshare;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -23,6 +24,7 @@ public class FridgeListActivity extends AppCompatActivity
     private FridgeAdapter lvFridgesAdapter;
     private ListView mListViewFridges;
     private Client mClient;
+    private ContentLoadingProgressBar mProgressBarFridgeList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,10 @@ public class FridgeListActivity extends AppCompatActivity
             }
         });
 
+        mProgressBarFridgeList = (ContentLoadingProgressBar) findViewById(R.id.progressBarFridgeList);
+
         mClient = Client.getInstance(this);
+        mProgressBarFridgeList.show();
         mClient.lsFridges(this, getString(R.string.default_locale), this);
     }
 
@@ -60,6 +65,7 @@ public class FridgeListActivity extends AppCompatActivity
     public void onSuccess(int code, Object response) {
         lvFridgesAdapter  = new FridgeAdapter(mClient, (Fridges) response);
         mListViewFridges.setAdapter(lvFridgesAdapter);
+        mProgressBarFridgeList.hide();
     }
 
     @Override

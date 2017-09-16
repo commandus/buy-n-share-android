@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">buy-n-share</string>
+    <string name="app_name">Fridge</string>
     <string name="nav_title">Meal inside</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -34,4 +34,6 @@
     <string name="action_rm_user_confirm">Do you really want to delete user?</string>
     <string name="action_rm_user_done">User deleted</string>
     <string name="error_empty_cn">Please enter your name</string>
+    <string name="msg_no_fridge_meal_items">No meal yet.</string>
+    <string name="action_add_fridge_confirm">Your fridge list is empty. Add a new fridge?</string>
 </resources>
