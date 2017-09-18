@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity
                     // add user to the fridge
                     long balance = 0L;
                     mClient.addFridgeUser(mApplicationSettings.getUserId(), Client.lastFridge(fridge_pos),
-                            this, balance, getString(R.string.default_locale));
+                            balance, getString(R.string.default_locale), this);
                 }
                 break;
             case RET_NEW_USER:

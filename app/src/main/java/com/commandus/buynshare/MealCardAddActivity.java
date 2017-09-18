@@ -16,6 +16,7 @@ import com.commandus.svc.Client;
 import com.commandus.svc.OnServiceResponse;
 
 import bs.Meals;
+import bs.Purchase;
 
 public class MealCardAddActivity extends AppCompatActivity implements OnServiceResponse {
 
@@ -24,11 +25,13 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
     private EditText mEtCost;
     private EditText mEtQty;
     private Meals mMeals = null;
+    private long mFridgeId;
     private Client mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mClient = Client.getInstance();
         setContentView(R.layout.activity_meal_card_add);
         Toolbar toolbar = findViewById(R.id.toolbar_meal_card_add);
         setSupportActionBar(toolbar);
@@ -68,8 +71,8 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
 
     private void save() {
         String meal = "";
-        long cost = 0;
-        int qty = 1;
+        long cost;
+        int qty;
         try {
             meal = mMealCN.getText().toString();
         } catch (Exception e)
@@ -80,24 +83,31 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
             qty = Integer.parseInt(mEtQty.getText().toString());
         } catch (Exception e)
         {
-            Log.e(TAG, e.toString());
+            qty = 1;
         }
         try {
             cost = Long.parseLong(mEtCost.getText().toString());
         } catch (Exception e)
         {
-            Log.e(TAG, e.toString());
+            cost = 0;
         }
         long mealId = Client.getMealId(meal);
-        Client.addMealCard(mealId, cost, qty);
-        // TODO
+        ApplicationSettings mAppSettings = ApplicationSettings.getInstance(this);
+        Client.addPurchase(getString(R.string.default_locale), mAppSettings.getUserId(), mFridgeId, mealId, cost, qty, this);
         finish();
     }
 
     @Override
     public void onSuccess(int code, Object response) {
-        mMeals = (Meals) response;
-        mMealCN.setAdapter(new MealAdapter(mClient, mMeals));
+        switch (code) {
+            case Client.CODE_LSMEAL:
+                mMeals = (Meals) response;
+                mMealCN.setAdapter(new MealAdapter(mClient, mMeals));
+                break;
+            case Client.CODE_ADDPURCHASE:
+                Purchase purchase = (Purchase) response;
+                break;
+        }
     }
 
     @Override

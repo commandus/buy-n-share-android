@@ -20,6 +20,7 @@ import bs.Fridge;
 import bs.FridgeUser;
 import bs.FridgeUsers;
 import bs.Fridges;
+import bs.Meal;
 import bs.MealCard;
 import bs.Meals;
 import bs.Purchase;
@@ -36,8 +37,9 @@ public class Client {
     public static final int CODE_LSFRIDGES = 2;
     public static final int CODE_ADDUSER = 3;
     public static final int CODE_ADDFRIDGEUSER = 4;
-    private static final int CODE_LSMEAL = 5;
-    private static final int CODE_GETFRIDGEPURCHASES = 6;
+    public static final int CODE_LSMEAL = 5;
+    public static final int CODE_GETFRIDGEPURCHASES = 6;
+    public static final int CODE_ADDPURCHASE = 7;
 
     private static Client mInstance = null;
     private static Meals mMeals;
@@ -257,8 +259,8 @@ public class Client {
         }
     }
 
-    public void addFridgeUser(long userId, Fridge fridge, final OnServiceResponse onServiceResponse, long balance,
-                              String locale) {
+    public void addFridgeUser(long userId, Fridge fridge, long balance, String locale,
+                              final OnServiceResponse onServiceResponse) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         Date start = new Date();
         int scn = fbb.createString("");
@@ -424,8 +426,53 @@ public class Client {
         return -1;
     }
 
-    public static void addMealCard(long mealId, long cost, int qty) {
-        // TODO
+    public static void addPurchase(
+            String locale, long userId, long fridgeId, long mealId,
+            long cost, int qty,
+            final OnServiceResponse onServiceResponse) {
+        FlatBufferBuilder fbb = new FlatBufferBuilder(0);
+        Date start = new Date();
+        int slocale = fbb.createString(locale);
+        int meal = Meal.createMeal(fbb, mealId, 0, slocale);
+        User.startUser(fbb);
+        User.addId(fbb, userId);
+        int user = User.endUser(fbb);
+        fbb.finish(user);
+        int votes = Purchase.createVotesVector(fbb, new int[] {user});
+        int purchase = Purchase.createPurchase(fbb, 0, userId, fridgeId, meal, cost, start.getTime()/1000, 0, votes);
+        fbb.finish(purchase);
+        try {
+            AndroidNetworking.post(URL + "add_purchase.php")
+                    .setContentType("application/octet-stream")
+                    .addByteBody(Helper.getFBBytes(fbb))
+                    .build()
+                    .getAsOkHttpResponse(new OkHttpResponseListener() {
+                        @Override
+                        public void onResponse(Response response) {
+                            ByteBuffer byteBuffer;
+                            try {
+                                Purchase purchaseRet = Purchase.getRootAsPurchase(ByteBuffer.wrap(response.body().bytes()));
+                                if (onServiceResponse != null)
+                                    onServiceResponse.onSuccess(CODE_ADDPURCHASE, purchaseRet);
+                                Log.i(TAG, "Purchase created, id: " + purchaseRet.id());
+                            } catch (Exception e) {
+                                Log.e(TAG, "addPurchase() " + e.toString());
+                                e.printStackTrace();
+                            }
+                        }
+                        @Override
+                        public void onError(ANError anError) {
+                            if (onServiceResponse != null)
+                                onServiceResponse.onError(CODE_ADDPURCHASE, anError.getErrorCode(), anError.getLocalizedMessage());
+                            Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
+                        }
+                    });
+        } catch (Exception e) {
+            if (onServiceResponse != null)
+                onServiceResponse.onError(CODE_ADDPURCHASE, -1, e.getLocalizedMessage());
+            Log.e(TAG, "addPurchase() " + e.toString());
+            e.printStackTrace();
+        }
     }
 
     public static void rmFridge(long fridgeId) {

@@ -43,8 +43,12 @@ public class PurchaseListActivity extends AppCompatActivity implements OnService
 
     @Override
     public void onSuccess(int code, Object response) {
-        mFridgePurchaseAdapter = new FridgePurchaseAdapter(mClient, mUserId, (Purchases) response);
-        mListviewPurchase.setAdapter(mFridgePurchaseAdapter);
+        switch (code) {
+            case Client.CODE_GETFRIDGEPURCHASES:
+                mFridgePurchaseAdapter = new FridgePurchaseAdapter(mClient, mUserId, (Purchases) response);
+                mListviewPurchase.setAdapter(mFridgePurchaseAdapter);
+                break;
+        }
     }
 
     @Override
