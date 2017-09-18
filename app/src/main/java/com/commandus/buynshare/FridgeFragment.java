@@ -19,7 +19,7 @@ public class FridgeFragment extends Fragment {
     private static final String TAG = FridgeFragment.class.getSimpleName();
 
     private UserFridgeMealCardAdapter mUserFridgeAdapter;
-    private Client mClient = Client.getInstance(this.getContext());
+    private Client mClient = Client.getInstance();
     private ListView mListViewUserFridge;
     private int mPage;
 
@@ -32,7 +32,7 @@ public class FridgeFragment extends Fragment {
 
         mPage = args.getInt(ARG_PAGE);
 
-        mListViewUserFridge = (ListView) rootView.findViewById(R.id.lv_meal_list);
+        mListViewUserFridge = rootView.findViewById(R.id.lv_meal_list);
 
         View emptyList = rootView.findViewById(R.id.tv_meal_list_empty);
         mListViewUserFridge.setEmptyView(emptyList);

@@ -1,12 +1,13 @@
 package com.commandus.svc;
 
 import android.content.Context;
+import android.support.v4.util.LongSparseArray;
 import android.util.Log;
+import android.util.SparseIntArray;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.error.ANError;
 import com.androidnetworking.interfaces.OkHttpResponseListener;
-import com.androidnetworking.interfaces.StringRequestListener;
 import com.commandus.buynshare.ApplicationSettings;
 import com.commandus.buynshare.Helper;
 import com.commandus.buynshare.R;
@@ -14,7 +15,6 @@ import com.google.flatbuffers.FlatBufferBuilder;
 
 import java.nio.ByteBuffer;
 import java.util.Date;
-import java.util.HashMap;
 
 import bs.Fridge;
 import bs.FridgeUser;
@@ -32,81 +32,104 @@ public class Client {
     private static final String URL = "http://f.commandus.com/a/";
 
     private static final String TAG = Client.class.getSimpleName();
-    public static final int CODE_GETUSERFRIDGESTEST = 1;
-    public static final int CODE_GETUSERFRIDGES = 2;
-    public static final int CODE_LSFRIDGES = 3;
-    public static final int CODE_ADDUSER = 4;
-    public static final int CODE_ADDFRIDGEUSER = 5;
+    public static final int CODE_GETUSERFRIDGES = 1;
+    public static final int CODE_LSFRIDGES = 2;
+    public static final int CODE_ADDUSER = 3;
+    public static final int CODE_ADDFRIDGEUSER = 4;
+    private static final int CODE_LSMEAL = 5;
+    private static final int CODE_GETFRIDGEPURCHASES = 6;
 
     private static Client mInstance = null;
-    private static HashMap<Long, Purchases> mFridgePurchases;
     private static Meals mMeals;
     private static Fridges mFridges;
-    private HashMap<Integer, Integer> mMealCardQty;
+    private SparseIntArray mMealCardQty;
+    private static LongSparseArray<Purchases> mFridgePurchases;
     private static UserFridges mUserFridges;
-    private static Context mContext;
 
-    public synchronized static Client getInstance(Context context) {
+    public synchronized static Client getInstance() {
         if (mInstance == null) {
             mInstance = new Client();
         }
-        mInstance.setContext(context);
         return mInstance;
     }
 
-    public static Meals getMeals(Context context, String locale) {
-        ByteBuffer byteBuffer;
+    public static void getMeals(Context context, String locale, final OnServiceResponse onServiceResponse) {
         try {
-            byteBuffer = ByteBuffer.wrap(Helper.loadResource(context, R.raw.ls_meal));
-            mMeals = Meals.getRootAsMeals(byteBuffer);
+            AndroidNetworking.post(URL + "ls_meal.php")
+                    .setContentType("application/octet-stream")
+                    .addQueryParameter("locale", locale)
+                    .build()
+                    .getAsOkHttpResponse(new OkHttpResponseListener() {
+                        @Override
+                        public void onResponse(Response response) {
+                            ByteBuffer byteBuffer;
+                            try {
+                                mMeals = Meals.getRootAsMeals((ByteBuffer.wrap(response.body().bytes())));
+                                if (onServiceResponse != null)
+                                    onServiceResponse.onSuccess(CODE_LSMEAL, mMeals);
+                            } catch (Exception e) {
+                                Log.e(TAG, "getMeals()" + e.toString());
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onError(ANError anError) {
+                            if (onServiceResponse != null)
+                                onServiceResponse.onError(CODE_LSMEAL, anError.getErrorCode(), anError.getLocalizedMessage());
+                            Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
+                        }
+                    });
+
         } catch (Exception e) {
             mMeals = null;
-            Log.e(TAG, "getMeals() " + e.toString());
+            if (onServiceResponse != null)
+                onServiceResponse.onError(CODE_LSMEAL, -1, e.getLocalizedMessage());
+            Log.e(TAG, "lsMeals() " + e.toString());
             e.printStackTrace();
-            return null;
         }
-        return mMeals;
     }
 
-    public static Purchases getFridgePurchases(Context context, long fridge_id) {
-        ByteBuffer byteBuffer;
+    public static void getFridgePurchases(Context context, final long fridge_id, final OnServiceResponse onServiceResponse) {
         try {
-            byteBuffer = ByteBuffer.wrap(Helper.loadResource(context, R.raw.ls_purchase_2));
-            mFridgePurchases.put(fridge_id, Purchases.getRootAsPurchases(byteBuffer));
+            AndroidNetworking.post(URL + "ls_purchase.php")
+                    .setContentType("application/octet-stream")
+                    .addQueryParameter("user_id", String.valueOf(0))
+                    .addQueryParameter("fridge_id", String.valueOf(fridge_id))
+                    .build()
+                    .getAsOkHttpResponse(new OkHttpResponseListener() {
+                        @Override
+                        public void onResponse(Response response) {
+                            try {
+                                mFridgePurchases.put(fridge_id, Purchases.getRootAsPurchases((ByteBuffer.wrap(response.body().bytes()))));
+                                if (onServiceResponse != null)
+                                    onServiceResponse.onSuccess(CODE_GETFRIDGEPURCHASES, mFridgePurchases.get(fridge_id));
+                            } catch (Exception e) {
+                                Log.e(TAG, "getFridgePurchases(): " + e.toString());
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onError(ANError anError) {
+                            if (onServiceResponse != null)
+                                onServiceResponse.onError(CODE_GETFRIDGEPURCHASES, anError.getErrorCode(), anError.getLocalizedMessage());
+                            Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
+                        }
+                    });
+
         } catch (Exception e) {
-            mUserFridges = null;
+            mMeals = null;
+            if (onServiceResponse != null)
+                onServiceResponse.onError(CODE_LSMEAL, -1, e.getLocalizedMessage());
             Log.e(TAG, "getFridgePurchases() " + e.toString());
             e.printStackTrace();
-            return null;
-        }
-        return mFridgePurchases.get(fridge_id);
-    }
-
-    /**
-     * Return UserFridges
-     * @param context
-     * @return UserFridges
-     */
-    public static void getUserFridgesTest(Context context, final OnServiceResponse onServiceResponse) {
-        ByteBuffer byteBuffer;
-        try {
-            byteBuffer = ByteBuffer.wrap(Helper.loadResource(context, R.raw.ls_userfridge_2));
-            mUserFridges = UserFridges.getRootAsUserFridges(byteBuffer);
-            if (onServiceResponse != null)
-                onServiceResponse.onSuccess(CODE_GETUSERFRIDGESTEST, mUserFridges);
-        } catch (Exception e) {
-            mUserFridges = null;
-            if (onServiceResponse != null)
-                onServiceResponse.onError(CODE_GETUSERFRIDGESTEST, -1, e.getLocalizedMessage());
-            Log.e(TAG, "getUserFridgesTest() " + e.toString());
-            e.printStackTrace();
         }
     }
 
     /**
      * Return UserFridges
-     * @param context
-     * @return UserFridges
+     * @param context Application contetx
      */
     public static void getUserFridges(final Context context, final OnServiceResponse onServiceResponse) {
         ByteBuffer byteBuffer;
@@ -148,8 +171,7 @@ public class Client {
 
     /**
      * Return List of fridges
-     * @param context
-     * @return UserFridges
+     * @param context Application context
      */
     public static void lsFridges(Context context, String locale, final OnServiceResponse onServiceResponse) {
         ByteBuffer byteBuffer;
@@ -166,11 +188,6 @@ public class Client {
                                 mFridges = Fridges.getRootAsFridges(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
                                     onServiceResponse.onSuccess(CODE_LSFRIDGES, mFridges);
-                                Log.i(TAG, "Fridges count: " + mFridges.fridgesLength());
-                                for (int f = 0; f < mFridges.fridgesLength(); f++) {
-//                                    Log.i(TAG, "Fridge id: " + mFridges.fridges(f).id());
-//                                    Log.i(TAG, "Fridge cn: " + mFridges.fridges(f).cn());
-                                }
                             } catch (Exception e) {
                                 Log.e(TAG, "lsFridges() " + e.toString());
                                 e.printStackTrace();
@@ -240,12 +257,13 @@ public class Client {
         }
     }
 
-    public void addFridgeUser(long userId, Fridge fridge, final OnServiceResponse onServiceResponse, long balance) {
+    public void addFridgeUser(long userId, Fridge fridge, final OnServiceResponse onServiceResponse, long balance,
+                              String locale) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         Date start = new Date();
         int scn = fbb.createString("");
         int sKey = fbb.createString("");
-        int slocale = fbb.createString(mContext.getString(R.string.default_locale));
+        int slocale = fbb.createString(locale);
         User.startUser(fbb);
         User.addId(fbb, userId);
         User.addCn(fbb, scn);
@@ -297,15 +315,12 @@ public class Client {
     }
 
     private  Client() {
-        mMealCardQty = new HashMap<Integer, Integer>();
-        mFridgePurchases = new HashMap<Long, Purchases>();
+        mMealCardQty = new SparseIntArray();
+        mFridgePurchases = new LongSparseArray<>();
     }
 
     public int getMealcardQtyDiff(int position) {
-        Integer r = mMealCardQty.get(position);
-        if (r == null)
-            r = 0;
-        return r;
+        return mMealCardQty.get(position, 0);
     }
 
     public void setMealcardQtyDiff(int position, int value) {
@@ -337,11 +352,11 @@ public class Client {
     }
 
     /**
-     * @brief Return fridge identifier for User Fridge at position in
+     * Return fridge identifier for User Fridge at position in
      * @param fridge_position position, zero based
      * @return fridge identifier for User Fridge at position in
      */
-    public long getFridgeId(int fridge_position) {
+    public static long getFridgeId(int fridge_position) {
         if (mUserFridges == null)
             return -1;
         if ((fridge_position >= mUserFridges.mealcardsLength() || fridge_position < 0))
@@ -350,11 +365,11 @@ public class Client {
     }
 
     /**
-     * @brief Return fridge common name for User Fridge at position in
+     * Return fridge common name for User Fridge at position in
      * @param fridge_position position, zero based
      * @return fridge identifier for User Fridge at position in
      */
-    public String getFridgeCN(int fridge_position ) {
+    public static String getFridgeCN(int fridge_position ) {
         if (mUserFridges == null)
             return "";
         if ((fridge_position >= mUserFridges.mealcardsLength() || fridge_position < 0))
@@ -363,11 +378,11 @@ public class Client {
     }
 
     /**
-     * @brief Return Users of the fridge
-     * @param fridge_position
+     * Return Users of the fridge
+     * @param fridge_position fridge position
      * @return Users of the fridge
      */
-    public FridgeUsers getFridgeUsers(int fridge_position) {
+    public static FridgeUsers getFridgeUsers(int fridge_position) {
         long id = getFridgeId(fridge_position);
         if (id < 0)
             return null;
@@ -380,46 +395,45 @@ public class Client {
     }
 
     /**
-     * @brief Check has user voted
-     * @param userId
-     * @param p
-     * @return
+     * Check has user voted
+     * @param userId User identifier
+     * @param purchase Purchase
+     * @return true- voted
      */
-    public static boolean voteExists(long userId, Purchase p) {
-        if (p == null)
+    public static boolean voteExists(long userId, Purchase purchase) {
+        if (purchase == null)
             return false;
-        for (int v = 0; v < p.votesLength(); v++) {
-            if (p.votes(v).id() == userId)
+        for (int v = 0; v < purchase.votesLength(); v++) {
+            if (purchase.votes(v).id() == userId)
                 return true;
         }
         return false;
     }
 
-    public long getMealId(String meal_cn) {
+    public static long getMealId(String meal_cn) {
         if (mMeals == null)
             return -1;
         String umeal_cn = meal_cn.toUpperCase();
         for (int m = 0; m < mMeals.mealsLength(); m++) {
-            if (mMeals.meals(m).cn().toUpperCase().contains(umeal_cn))
-                return mMeals.meals(m).id();
+            String c = mMeals.meals(m).cn();
+            if (c != null) {
+                if (c.toUpperCase().contains(umeal_cn))
+                    return mMeals.meals(m).id();
+            }
         }
         return -1;
     }
 
-    public void addMealCard(long mealId, long cost, int qty) {
+    public static void addMealCard(long mealId, long cost, int qty) {
         // TODO
     }
 
-    public void rmFridge(long fridgeId) {
+    public static void rmFridge(long fridgeId) {
         // TODO
     }
 
-    public void rmUser() {
+    public static void rmUser() {
         // TODO
-    }
-
-    public void setContext(Context context) {
-        this.mContext = context;
     }
 
 }

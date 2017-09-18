@@ -10,28 +10,30 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.commandus.svc.Client;
+import com.commandus.svc.OnServiceResponse;
 
 import bs.Meals;
 
-public class MealCardAddActivity extends AppCompatActivity {
+public class MealCardAddActivity extends AppCompatActivity implements OnServiceResponse {
 
     private static final String TAG = MealCardAddActivity.class.getSimpleName();
     private AutoCompleteTextView mMealCN;
     private EditText mEtCost;
     private EditText mEtQty;
-    private Meals mMeals;
+    private Meals mMeals = null;
     private Client mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meal_card_add);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_meal_card_add);
+        Toolbar toolbar = findViewById(R.id.toolbar_meal_card_add);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_meal_card_add);
+        FloatingActionButton fab = findViewById(R.id.fab_meal_card_add);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -39,13 +41,10 @@ public class MealCardAddActivity extends AppCompatActivity {
             }
         });
 
-        mClient = Client.getInstance(this);
-
-        mMealCN = (AutoCompleteTextView) findViewById(R.id.actv_meal_card_add_cn);
-        mMeals = mClient.getMeals(this, getString(R.string.default_locale));
-        mMealCN.setAdapter(new MealAdapter(mClient, mMeals));
-        mEtCost = (EditText) findViewById(R.id.et_meal_card_add_cost);
-        mEtQty = (EditText) findViewById(R.id.et_meal_card_add_qty);
+        mMealCN = findViewById(R.id.actv_meal_card_add_cn);
+        Client.getMeals(this, getString(R.string.default_locale), this);
+        mEtCost = findViewById(R.id.et_meal_card_add_cost);
+        mEtQty = findViewById(R.id.et_meal_card_add_qty);
         // mEtQty.setText("1");
     }
 
@@ -89,9 +88,21 @@ public class MealCardAddActivity extends AppCompatActivity {
         {
             Log.e(TAG, e.toString());
         }
-        long mealId = mClient.getMealId(meal);
-        mClient.addMealCard(mealId, cost, qty);
+        long mealId = Client.getMealId(meal);
+        Client.addMealCard(mealId, cost, qty);
         // TODO
         finish();
+    }
+
+    @Override
+    public void onSuccess(int code, Object response) {
+        mMeals = (Meals) response;
+        mMealCN.setAdapter(new MealAdapter(mClient, mMeals));
+    }
+
+    @Override
+    public int onError(int code, int errorcode, String errorDescription) {
+        Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
+        return 0;
     }
 }

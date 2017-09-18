@@ -25,8 +25,8 @@ public class UserEditActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_edit);
 
-        Toolbar toolbarUserEdit = (Toolbar) findViewById(R.id.toolbar_user_edit);
-        mCN = (EditText) findViewById(R.id.et_user_cn);
+        Toolbar toolbarUserEdit = findViewById(R.id.toolbar_user_edit);
+        mCN = findViewById(R.id.et_user_cn);
         setTitle(getString(R.string.title_activity_user_add));
         // setSupportActionBar(toolbarUserEdit);
     }
@@ -37,8 +37,7 @@ public class UserEditActivity extends AppCompatActivity
     }
 
     private void mkUser(String cn) {
-        Client c = Client.getInstance(this);
-        c.addUser(cn, getString(R.string.default_locale), this);
+        Client.addUser(cn, getString(R.string.default_locale), this);
     }
 
     @Override
@@ -81,10 +80,14 @@ public class UserEditActivity extends AppCompatActivity
 
     @Override
     public void onSuccess(int code, Object response) {
-        ApplicationSettings s = ApplicationSettings.getInstance(this);
-        s.saveUser((User)response);
-        // Toast.makeText(this, "Success", Toast.LENGTH_LONG).show();
-        finish();
+        switch (code) {
+            case Client.CODE_ADDUSER:
+                ApplicationSettings s = ApplicationSettings.getInstance(this);
+                s.saveUser((User)response);
+                // Toast.makeText(this, "Success", Toast.LENGTH_LONG).show();
+                finish();
+                break;
+        }
     }
 
     @Override

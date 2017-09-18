@@ -31,10 +31,10 @@ public class FridgeListActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fridge_list);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_fridge_list);
+        Toolbar toolbar = findViewById(R.id.toolbar_fridge_list);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_fridge_list_add);
+        FloatingActionButton fab = findViewById(R.id.fab_fridge_list_add);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -43,7 +43,7 @@ public class FridgeListActivity extends AppCompatActivity
             }
         });
 
-        mListViewFridges = (ListView) findViewById(R.id.listview_fridge_list);
+        mListViewFridges = findViewById(R.id.listview_fridge_list);
         mListViewFridges.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -54,18 +54,21 @@ public class FridgeListActivity extends AppCompatActivity
             }
         });
 
-        mProgressBarFridgeList = (ContentLoadingProgressBar) findViewById(R.id.progressBarFridgeList);
+        mProgressBarFridgeList = findViewById(R.id.progressBarFridgeList);
 
-        mClient = Client.getInstance(this);
         mProgressBarFridgeList.show();
-        mClient.lsFridges(this, getString(R.string.default_locale), this);
+        Client.lsFridges(this, getString(R.string.default_locale), this);
     }
 
     @Override
     public void onSuccess(int code, Object response) {
-        lvFridgesAdapter  = new FridgeAdapter(mClient, (Fridges) response);
-        mListViewFridges.setAdapter(lvFridgesAdapter);
-        mProgressBarFridgeList.hide();
+        switch (code) {
+            case Client.CODE_LSFRIDGES:
+                lvFridgesAdapter  = new FridgeAdapter(mClient, (Fridges) response);
+                mListViewFridges.setAdapter(lvFridgesAdapter);
+                mProgressBarFridgeList.hide();
+                break;
+        }
     }
 
     @Override
