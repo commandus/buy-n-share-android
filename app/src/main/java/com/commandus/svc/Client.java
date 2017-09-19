@@ -66,13 +66,12 @@ public class Client {
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
                         public void onResponse(Response response) {
-                            ByteBuffer byteBuffer;
                             try {
                                 mMeals = Meals.getRootAsMeals((ByteBuffer.wrap(response.body().bytes())));
                                 if (onServiceResponse != null)
                                     onServiceResponse.onSuccess(CODE_LSMEAL, mMeals);
                             } catch (Exception e) {
-                                Log.e(TAG, "getMeals()" + e.toString());
+                                Log.e(TAG, "getMeals() error: " + e.toString());
                                 e.printStackTrace();
                             }
                         }
@@ -89,7 +88,7 @@ public class Client {
             mMeals = null;
             if (onServiceResponse != null)
                 onServiceResponse.onError(CODE_LSMEAL, -1, e.getLocalizedMessage());
-            Log.e(TAG, "lsMeals() " + e.toString());
+            Log.e(TAG, "lsMeals() error: " + e.toString());
             e.printStackTrace();
         }
     }
@@ -136,22 +135,22 @@ public class Client {
      * @param context Application contetx
      */
     public static void getUserFridges(final Context context, final OnServiceResponse onServiceResponse) {
-        ByteBuffer byteBuffer;
+        ApplicationSettings settings = ApplicationSettings.getInstance(context);
+        final long userId = settings.getUserId();
         try {
             AndroidNetworking.post(URL + "ls_userfridge.php")
                     .setContentType("application/octet-stream")
-                    .addQueryParameter("user_id", String.valueOf(ApplicationSettings.getInstance(context).getUserId()))
+                    .addQueryParameter("user_id", String.valueOf(userId))
                     .build()
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
                         public void onResponse(Response response) {
-                            ByteBuffer byteBuffer;
                             try {
                                 mUserFridges = UserFridges.getRootAsUserFridges(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
                                     onServiceResponse.onSuccess(CODE_GETUSERFRIDGES, mUserFridges);
                             } catch (Exception e) {
-                                Log.e(TAG, "getUserFridges(" + String.valueOf(ApplicationSettings.getInstance(context).getUserId()) + ") " + e.toString());
+                                Log.e(TAG, "getUserFridges(" + String.valueOf(userId) + ") " + e.toString());
                                 e.printStackTrace();
                             }
                         }
@@ -178,7 +177,6 @@ public class Client {
      * @param context Application context
      */
     public static void lsFridges(Context context, String locale, final OnServiceResponse onServiceResponse) {
-        ByteBuffer byteBuffer;
         try {
             AndroidNetworking.post(URL + "ls_fridge.php")
                     .setContentType("application/octet-stream")
@@ -187,7 +185,6 @@ public class Client {
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
                         public void onResponse(Response response) {
-                            ByteBuffer byteBuffer;
                             try {
                                 mFridges = Fridges.getRootAsFridges(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
@@ -234,7 +231,6 @@ public class Client {
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
                         public void onResponse(Response response) {
-                            ByteBuffer byteBuffer;
                             try {
                                 User u = User.getRootAsUser(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
@@ -286,7 +282,6 @@ public class Client {
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
                         public void onResponse(Response response) {
-                            ByteBuffer byteBuffer;
                             try {
                                 User u = User.getRootAsUser(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
@@ -464,7 +459,6 @@ public class Client {
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
                         public void onResponse(Response response) {
-                            ByteBuffer byteBuffer;
                             try {
                                 Purchase purchaseRet = Purchase.getRootAsPurchase(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
@@ -520,7 +514,6 @@ public class Client {
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
                         public void onResponse(Response response) {
-                            ByteBuffer byteBuffer;
                             try {
                                 Fridge fridgeRet = Fridge.getRootAsFridge(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)

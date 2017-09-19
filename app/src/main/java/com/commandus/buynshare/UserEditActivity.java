@@ -30,7 +30,7 @@ public class UserEditActivity extends AppCompatActivity
 
         Toolbar toolbarUserEdit = findViewById(R.id.toolbar_user_edit);
         mCN = findViewById(R.id.et_user_cn);
-        mProgressBarUserEdit = findViewById(R.id.progress_bar_fridge_add);
+        mProgressBarUserEdit = findViewById(R.id.progress_bar_user_edit);
 
         setTitle(getString(R.string.title_activity_user_add));
         // setSupportActionBar(toolbarUserEdit);
