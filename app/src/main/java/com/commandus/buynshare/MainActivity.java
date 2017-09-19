@@ -235,6 +235,7 @@ public class MainActivity extends AppCompatActivity
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 Client.rmUser();
                                 mApplicationSettings.clearUser();
+                                Client.clearAccount();
                                 Toast.makeText(MainActivity.this, R.string.action_rm_user_done, Toast.LENGTH_SHORT).show();
                                 refreshUserFridges(null);
                                 Intent intent = new Intent(MainActivity.this, UserEditActivity.class);
@@ -254,10 +255,12 @@ public class MainActivity extends AppCompatActivity
         else {
             Intent intent;
             switch (id) {
+                /*
                 case 0:
                     intent = new Intent(MainActivity.this, FridgeAddActivity.class);
                     startActivity(intent);
                     break;
+                */
                 case R.id.nav_fridge_list_around:
                     intent = new Intent(MainActivity.this, FridgeListActivity.class);
                     startActivityForResult(intent, RET_FRIDGE);
@@ -284,7 +287,6 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             case RET_NEW_USER:
-                Client.getUserFridges(this, this);
                 break;
         }
     }
@@ -315,38 +317,13 @@ public class MainActivity extends AppCompatActivity
                 Menu.NONE,
                 Client.lastUserFridges().mealcards(f).fridge().cn());
         }
+        /*
         MenuItem item = subMenu.add(R.id.nav_group_fridges,
                 0,
                 Menu.NONE,
                 getString(R.string.title_activity_fridge_add));
+        */
 
-    }
-
-    @Override
-    public void onSuccess(int code, Object response) {
-        switch (code) {
-            case Client.CODE_GETUSERFRIDGES:
-                refreshUserFridges((UserFridges) response);
-                break;
-            case Client.CODE_ADDFRIDGEUSER:
-                break;
-        }
-        mProgressBarMain.hide();
-        if (response == null)
-            return;
-        if (((UserFridges) response).mealcardsLength() == 0) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.action_add_fridge)
-                    .setMessage(R.string.action_add_fridge_confirm)
-                    .setIcon(android.R.drawable.ic_dialog_info)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                            Intent intent = new Intent(MainActivity.this, FridgeListActivity.class);
-                            startActivityForResult(intent, RET_FRIDGE);
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, null).show();
-        }
     }
 
     private void refreshUserFridges(UserFridges userFridges) {
@@ -356,8 +333,23 @@ public class MainActivity extends AppCompatActivity
         navigateToFridgePage(0);
     }
 
+
+    @Override
+    public void onSuccess(int code, Object response) {
+        mProgressBarMain.hide();
+        switch (code) {
+            case Client.CODE_ADDFRIDGEUSER:
+                Client.getUserFridges(this, this);
+                return;
+            case Client.CODE_GETUSERFRIDGES:
+                refreshUserFridges(Client.lastUserFridges());
+                break;
+        }
+    }
+
     @Override
     public int onError(int code, int errorcode, String errorDescription) {
+        mProgressBarMain.hide();
         Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
         return 0;
     }

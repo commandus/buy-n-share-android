@@ -28,7 +28,7 @@
     <string name="hint_tv_meal_card_add_qty">Quantity</string>
     <string name="action_add_fridge">Add</string>
     <string name="action_add_meal_card">Add</string>
-    <string name="action_rm_user">Delete account</string>
+    <string name="action_rm_user">Delete account (all fridges)</string>
     <string name="action_rm_fridge_confirm">Do you really want to delete fridge?</string>
     <string name="action_rm_fridge_done">Fridge deleted</string>
     <string name="action_rm_user_confirm">Do you really want to delete user?</string>
@@ -36,4 +36,5 @@
     <string name="error_empty_cn">Please enter your name</string>
     <string name="msg_no_fridge_meal_items">No meal yet.</string>
     <string name="action_add_fridge_confirm">Your fridge list is empty. Add a new fridge?</string>
+    <string name="hint_tv_fridge_add_cn">Fridge name</string>
 </resources>

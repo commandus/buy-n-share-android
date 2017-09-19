@@ -1,6 +1,7 @@
 package com.commandus.buynshare;
 
 import android.content.Intent;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
@@ -23,6 +24,7 @@ public class PurchaseListActivity extends AppCompatActivity implements OnService
     private FridgePurchaseAdapter mFridgePurchaseAdapter;
     private Client mClient;
     private ListView mListviewPurchase;
+    private ContentLoadingProgressBar mProgressBarPurchaseList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,11 +40,15 @@ public class PurchaseListActivity extends AppCompatActivity implements OnService
         mFridgeId = intent.getLongExtra(PAR_FRIDGE_ID, 0);
         mFridgeCN = intent.getStringExtra(PAR_FRIDGE_CN);
 
+        mProgressBarPurchaseList = findViewById(R.id.progressBarMain);
+        mProgressBarPurchaseList.show();
+
         Client.getFridgePurchases(this, mFridgeId, this);
     }
 
     @Override
     public void onSuccess(int code, Object response) {
+        mProgressBarPurchaseList.hide();
         switch (code) {
             case Client.CODE_GETFRIDGEPURCHASES:
                 mFridgePurchaseAdapter = new FridgePurchaseAdapter(mClient, mUserId, (Purchases) response);
@@ -53,6 +59,7 @@ public class PurchaseListActivity extends AppCompatActivity implements OnService
 
     @Override
     public int onError(int code, int errorcode, String errorDescription) {
+        mProgressBarPurchaseList.hide();
         Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
         return 0;
     }

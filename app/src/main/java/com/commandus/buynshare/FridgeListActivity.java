@@ -21,10 +21,12 @@ public class FridgeListActivity extends AppCompatActivity
 {
 
     public static final String PAR_FRIDGE_POS = "fridge_pos";
+    private static final int RET_ADD_FRIDGE = 1;
     private FridgeAdapter lvFridgesAdapter;
     private ListView mListViewFridges;
     private Client mClient;
     private ContentLoadingProgressBar mProgressBarFridgeList;
+    private long mRetFridgeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +41,7 @@ public class FridgeListActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(FridgeListActivity.this, FridgeAddActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, RET_ADD_FRIDGE);
             }
         });
 
@@ -47,32 +49,59 @@ public class FridgeListActivity extends AppCompatActivity
         mListViewFridges.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Intent intent = new Intent();
-                intent.putExtra(PAR_FRIDGE_POS, position);
-                setResult(RESULT_OK, intent);
-                finish();
+                select(position);
             }
         });
 
         mProgressBarFridgeList = findViewById(R.id.progressBarFridgeList);
-
         mProgressBarFridgeList.show();
         Client.lsFridges(this, getString(R.string.default_locale), this);
     }
 
+    private void select(int position) {
+        Intent intent = new Intent();
+        intent.putExtra(PAR_FRIDGE_POS, position);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null)
+            return;
+        switch (requestCode) {
+            case RET_ADD_FRIDGE:
+                mRetFridgeId = data.getLongExtra(FridgeAddActivity.PAR_FRIDGE_ID, 0L);
+                String fridge_cn = data.getStringExtra(FridgeAddActivity.PAR_FRIDGE_CN);
+                if (mRetFridgeId > 0) {
+                    mProgressBarFridgeList.show();
+                    Client.lsFridges(this, getString(R.string.default_locale), this);
+                }
+                break;
+        }
+    }
+
     @Override
     public void onSuccess(int code, Object response) {
+        mProgressBarFridgeList.hide();
         switch (code) {
             case Client.CODE_LSFRIDGES:
                 lvFridgesAdapter  = new FridgeAdapter(mClient, (Fridges) response);
                 mListViewFridges.setAdapter(lvFridgesAdapter);
-                mProgressBarFridgeList.hide();
+                if (mRetFridgeId > 0) {
+                    // After we got a new fridge list, return position in the list
+                    int p = Client.getFridgePos(mRetFridgeId);
+                    if (p >= 0)
+                        select(p);
+                    mRetFridgeId = 0;
+                }
                 break;
         }
     }
 
     @Override
     public int onError(int code, int errorcode, String errorDescription) {
+        mProgressBarFridgeList.hide();
         Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
         return 0;
     }

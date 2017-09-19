@@ -20,6 +20,7 @@ import bs.Fridge;
 import bs.FridgeUser;
 import bs.FridgeUsers;
 import bs.Fridges;
+import bs.Geo;
 import bs.Meal;
 import bs.MealCard;
 import bs.Meals;
@@ -40,6 +41,7 @@ public class Client {
     public static final int CODE_LSMEAL = 5;
     public static final int CODE_GETFRIDGEPURCHASES = 6;
     public static final int CODE_ADDPURCHASE = 7;
+    public static final int CODE_ADDFRIDGE = 8;
 
     private static Client mInstance = null;
     private static Meals mMeals;
@@ -222,7 +224,6 @@ public class Client {
         User.addCn(fbb, scn);
         User.addKey(fbb, sKey);
         User.addLocale(fbb, slocale);
-        // User.addGeo(fbb, Geo.createGeo(fbb, 0.0f, 0.0f, 0));
         int u = User.endUser(fbb);
         fbb.finish(u);
         try {
@@ -264,12 +265,12 @@ public class Client {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         Date start = new Date();
         int scn = fbb.createString("");
-        int sKey = fbb.createString("");
+        int skey = fbb.createString("");
         int slocale = fbb.createString(locale);
         User.startUser(fbb);
         User.addId(fbb, userId);
         User.addCn(fbb, scn);
-        User.addKey(fbb, sKey);
+        User.addKey(fbb, skey);
         User.addLocale(fbb, slocale);
         int u = User.endUser(fbb);
         int fu = FridgeUser.createFridgeUser(fbb, fridge.id(), u, start.getTime()/1000, 0, balance);
@@ -290,7 +291,7 @@ public class Client {
                                 User u = User.getRootAsUser(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
                                     onServiceResponse.onSuccess(CODE_ADDFRIDGEUSER, u);
-                                Log.i(TAG, "User " + u.cn() + " created, id: " + u.id() + ", token:" + u.key() + ", locale: " + u.locale());
+                                Log.i(TAG, "User created");
                             } catch (Exception e) {
                                 Log.e(TAG, "addFridgeUser() " + e.toString());
                                 e.printStackTrace();
@@ -341,6 +342,10 @@ public class Client {
         return mUserFridges;
     }
 
+    public static void clearAccount() {
+        mUserFridges = null;
+    }
+
     public static Fridges lastFridges() {
         return mFridges;
     }
@@ -364,6 +369,16 @@ public class Client {
         if ((fridge_position >= mUserFridges.mealcardsLength() || fridge_position < 0))
             return -1;
         return mUserFridges.mealcards(fridge_position).fridge().id();
+    }
+
+    public static int getFridgePos(long fridgeId) {
+        if (mUserFridges == null)
+            return -1;
+        for (int f = 0; f < mUserFridges.mealcardsLength(); f++) {
+            if (mUserFridges.mealcards(f).fridge().id() == fridgeId)
+                return f;
+        }
+        return -1;
     }
 
     /**
@@ -481,6 +496,54 @@ public class Client {
 
     public static void rmUser() {
         // TODO
+    }
+
+    public static void addFridge(String locale, long userId, String cn,
+                                 long balance,
+                                 final OnServiceResponse onServiceResponse) {
+        FlatBufferBuilder fbb = new FlatBufferBuilder(0);
+        int scn = fbb.createString(cn);
+        int slocale = fbb.createString(locale);
+        Fridge.startFridge(fbb);
+        Fridge.addCn(fbb, scn);
+        Fridge.addLocale(fbb, slocale);
+        Fridge.addGeo(fbb, Geo.createGeo(fbb, 0.0f, 0.0f, 0));
+        int f = Fridge.endFridge(fbb);
+        fbb.finish(f);
+        try {
+            AndroidNetworking.post(URL + "add_fridge.php")
+                    .setContentType("application/octet-stream")
+                    .addQueryParameter("user_id", String.valueOf(userId))
+                    .addQueryParameter("balance", String.valueOf(balance))
+                    .addByteBody(Helper.getFBBytes(fbb))
+                    .build()
+                    .getAsOkHttpResponse(new OkHttpResponseListener() {
+                        @Override
+                        public void onResponse(Response response) {
+                            ByteBuffer byteBuffer;
+                            try {
+                                Fridge fridgeRet = Fridge.getRootAsFridge(ByteBuffer.wrap(response.body().bytes()));
+                                if (onServiceResponse != null)
+                                    onServiceResponse.onSuccess(CODE_ADDFRIDGE, fridgeRet);
+                                Log.i(TAG, "Fridge created, id: " + fridgeRet.id());
+                            } catch (Exception e) {
+                                Log.e(TAG, "addFridge() " + e.toString());
+                                e.printStackTrace();
+                            }
+                        }
+                        @Override
+                        public void onError(ANError anError) {
+                            if (onServiceResponse != null)
+                                onServiceResponse.onError(CODE_ADDFRIDGE, anError.getErrorCode(), anError.getLocalizedMessage());
+                            Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
+                        }
+                    });
+        } catch (Exception e) {
+            if (onServiceResponse != null)
+                onServiceResponse.onError(CODE_ADDFRIDGE, -1, e.getLocalizedMessage());
+            Log.e(TAG, "addFridge() " + e.toString());
+            e.printStackTrace();
+        }
     }
 
 }

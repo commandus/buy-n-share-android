@@ -28,7 +28,7 @@
     <string name="hint_tv_meal_card_add_qty">Количество</string>
     <string name="action_add_fridge">Добавить</string>
     <string name="action_add_meal_card">Добавить</string>
-    <string name="action_rm_user">Удалить меня</string>
+    <string name="action_rm_user">Удалить мой аккаунт (все холодильники)</string>
     <string name="action_rm_fridge_confirm">Удаление холодильника позднее нельзя отменить. Подтверждаете удаление?</string>
     <string name="action_rm_fridge_done">Холодильник удален</string>
     <string name="action_rm_user_confirm">Удаление аккаунта пользователя влечет потерю всей информации о холодильниках и позднее удаление нельзя отменить. Подтверждаете удаление?</string>
@@ -36,5 +36,6 @@
     <string name="error_empty_cn">Введите имя</string>
     <string name="msg_no_fridge_meal_items">Пока пусто.</string>
     <string name="action_add_fridge_confirm">Список ваших холодильников пуст. Добавить холодильник?</string>
+    <string name="hint_tv_fridge_add_cn">Название холодильника</string>
 
 </resources>
