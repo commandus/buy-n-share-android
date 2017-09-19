@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int RET_FRIDGE = 1;
     private static final int RET_NEW_USER = 2;
+    private static final int RET_ADD_MEAL_CARD = 3;
     private ApplicationSettings mApplicationSettings;
     private Client mClient;
     private ViewPager mViewPager;
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, MealCardAddActivity.class);
                 intent.putExtra(MealCardAddActivity.PAR_FRIDGE_ID, Client.getFridgeId(mViewPager.getCurrentItem()));
-                startActivity(intent);
+                startActivityForResult(intent, RET_ADD_MEAL_CARD);
             }
         });
 
@@ -297,6 +298,10 @@ public class MainActivity extends AppCompatActivity
                     mClient.addFridgeUser(mApplicationSettings.getUserId(), Client.lastFridge(fridge_pos),
                             balance, getString(R.string.default_locale), this);
                 }
+                break;
+            case RET_ADD_MEAL_CARD:
+                // Refresh list or add manually
+                Client.getUserFridges(this, this);
                 break;
             case RET_NEW_USER:
                 break;

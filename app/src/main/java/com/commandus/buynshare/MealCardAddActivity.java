@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.commandus.svc.Client;
 import com.commandus.svc.OnServiceResponse;
 
+import bs.Meal;
 import bs.Meals;
 import bs.Purchase;
 
@@ -23,17 +24,20 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
 
     private static final String TAG = MealCardAddActivity.class.getSimpleName();
     public static final String PAR_FRIDGE_ID = "fridge_id";
+    private static final String PAR_PURCHASE_ID = "purchase_id";
     private AutoCompleteTextView mMealCN;
     private EditText mEtCost;
     private EditText mEtQty;
     private Meals mMeals = null;
     private long mFridgeId;
     private Client mClient;
+    private ApplicationSettings mAppSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mClient = Client.getInstance();
+        mAppSettings = ApplicationSettings.getInstance(this);
         setContentView(R.layout.activity_meal_card_add);
 
         Intent intent = getIntent();
@@ -54,7 +58,6 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
         Client.getMeals(this, getString(R.string.default_locale), this);
         mEtCost = findViewById(R.id.et_meal_card_add_cost);
         mEtQty = findViewById(R.id.et_meal_card_add_qty);
-        // mEtQty.setText("1");
     }
 
     @Override
@@ -98,20 +101,50 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
             cost = 0;
         }
         long mealId = Client.getMealId(meal);
-        ApplicationSettings mAppSettings = ApplicationSettings.getInstance(this);
-        Client.addPurchase(getString(R.string.default_locale), mAppSettings.getUserId(), mFridgeId, mealId, cost, qty, this);
-        finish();
+        if (mealId < 0)
+            Client.addMeal(getString(R.string.default_locale), meal, this);
+        else {
+            Client.addPurchase(getString(R.string.default_locale), mAppSettings.getUserId(), mFridgeId, mealId, cost, qty, this);
+        }
     }
 
     @Override
     public void onSuccess(int code, Object response) {
         switch (code) {
+            case Client.CODE_ADDMEAL:
+                Meal meal = (Meal) response;
+                long cost;
+                int qty;
+                try {
+                    qty = Integer.parseInt(mEtQty.getText().toString());
+                } catch (Exception e)
+                {
+                    qty = 1;
+                }
+                try {
+                    cost = Long.parseLong(mEtCost.getText().toString());
+                } catch (Exception e)
+                {
+                    cost = 0;
+                }
+
+                Client.addPurchase(getString(R.string.default_locale), mAppSettings.getUserId(), mFridgeId,
+                        meal.id(), cost, qty, this);
+                break;
             case Client.CODE_LSMEAL:
                 mMeals = (Meals) response;
                 mMealCN.setAdapter(new MealAdapter(mClient, mMeals));
                 break;
             case Client.CODE_ADDPURCHASE:
                 Purchase purchase = (Purchase) response;
+                // Just in case return purchase and fridge ids
+                Intent intent = new Intent();
+                intent.putExtra(PAR_FRIDGE_ID, mFridgeId);
+                if (purchase != null) {
+                    intent.putExtra(PAR_PURCHASE_ID, purchase.id());
+                }
+                setResult(RESULT_OK, intent);
+                finish();
                 break;
         }
     }

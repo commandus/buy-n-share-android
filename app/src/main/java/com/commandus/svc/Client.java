@@ -42,6 +42,7 @@ public class Client {
     public static final int CODE_GETFRIDGEPURCHASES = 6;
     public static final int CODE_ADDPURCHASE = 7;
     public static final int CODE_ADDFRIDGE = 8;
+    public static final int CODE_ADDMEAL = 9;
 
     private static Client mInstance = null;
     private static Meals mMeals;
@@ -550,4 +551,42 @@ public class Client {
         }
     }
 
+    public static void addMeal(String locale, String cn, final OnServiceResponse onServiceResponse) {
+        FlatBufferBuilder fbb = new FlatBufferBuilder(0);
+        int scn = fbb.createString(cn);
+        int slocale = fbb.createString(locale);
+        int m = Meal.createMeal(fbb, 0, scn, slocale);
+        fbb.finish(m);
+        try {
+            AndroidNetworking.post(URL + "add_meal.php")
+                    .setContentType("application/octet-stream")
+                    .addByteBody(Helper.getFBBytes(fbb))
+                    .build()
+                    .getAsOkHttpResponse(new OkHttpResponseListener() {
+                        @Override
+                        public void onResponse(Response response) {
+                            try {
+                                Fridge fridgeRet = Fridge.getRootAsFridge(ByteBuffer.wrap(response.body().bytes()));
+                                if (onServiceResponse != null)
+                                    onServiceResponse.onSuccess(CODE_ADDMEAL, fridgeRet);
+                                Log.i(TAG, "Fridge created, id: " + fridgeRet.id());
+                            } catch (Exception e) {
+                                Log.e(TAG, "addFridge() " + e.toString());
+                                e.printStackTrace();
+                            }
+                        }
+                        @Override
+                        public void onError(ANError anError) {
+                            if (onServiceResponse != null)
+                                onServiceResponse.onError(CODE_ADDMEAL, anError.getErrorCode(), anError.getLocalizedMessage());
+                            Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
+                        }
+                    });
+        } catch (Exception e) {
+            if (onServiceResponse != null)
+                onServiceResponse.onError(CODE_ADDMEAL, -1, e.getLocalizedMessage());
+            Log.e(TAG, "addFridge() " + e.toString());
+            e.printStackTrace();
+        }
+    }
 }
