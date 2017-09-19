@@ -137,6 +137,15 @@ public class Client {
     public static void getUserFridges(final Context context, final OnServiceResponse onServiceResponse) {
         ApplicationSettings settings = ApplicationSettings.getInstance(context);
         final long userId = settings.getUserId();
+        if (userId <= 0) {
+            // No user created yet
+            mUserFridges = null;
+            if (onServiceResponse != null) {
+                onServiceResponse.onError(CODE_GETUSERFRIDGES, -1,
+                        context.getString(R.string.error_no_user_yet));
+                return;
+            }
+        }
         try {
             AndroidNetworking.post(URL + "ls_userfridge.php")
                     .setContentType("application/octet-stream")
@@ -454,6 +463,8 @@ public class Client {
         try {
             AndroidNetworking.post(URL + "add_purchase.php")
                     .setContentType("application/octet-stream")
+                    .addQueryParameter("qty", String.valueOf(qty))
+                    .addQueryParameter("all", "")
                     .addByteBody(Helper.getFBBytes(fbb))
                     .build()
                     .getAsOkHttpResponse(new OkHttpResponseListener() {

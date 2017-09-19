@@ -1,5 +1,6 @@
 package com.commandus.buynshare;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +22,7 @@ import bs.Purchase;
 public class MealCardAddActivity extends AppCompatActivity implements OnServiceResponse {
 
     private static final String TAG = MealCardAddActivity.class.getSimpleName();
+    public static final String PAR_FRIDGE_ID = "fridge_id";
     private AutoCompleteTextView mMealCN;
     private EditText mEtCost;
     private EditText mEtQty;
@@ -33,6 +35,10 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
         super.onCreate(savedInstanceState);
         mClient = Client.getInstance();
         setContentView(R.layout.activity_meal_card_add);
+
+        Intent intent = getIntent();
+        mFridgeId = intent.getLongExtra(PAR_FRIDGE_ID, 0);
+
         Toolbar toolbar = findViewById(R.id.toolbar_meal_card_add);
         setSupportActionBar(toolbar);
 

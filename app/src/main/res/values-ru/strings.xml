@@ -37,5 +37,6 @@
     <string name="msg_no_fridge_meal_items">Пока пусто.</string>
     <string name="action_add_fridge_confirm">Список ваших холодильников пуст. Добавить холодильник?</string>
     <string name="hint_tv_fridge_add_cn">Название холодильника</string>
+    <string name="error_no_user_yet">Нужно создать аккаунт пользователя.</string>
 
 </resources>

@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity
 
         mProgressBarMain = findViewById(R.id.progressBarMain);
 
-        Client.getUserFridges(this, this);
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -90,6 +89,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, MealCardAddActivity.class);
+                intent.putExtra(MealCardAddActivity.PAR_FRIDGE_ID, Client.getFridgeId(mViewPager.getCurrentItem()));
                 startActivity(intent);
             }
         });
@@ -99,6 +99,8 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+        Client.getUserFridges(this, this);
 
         setLoadProgress(true);
 
