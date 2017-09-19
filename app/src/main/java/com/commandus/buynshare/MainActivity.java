@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     private Toolbar mToolbar;
     private NavigationView mNavigationView;
     private ContentLoadingProgressBar mProgressBarMain;
+    private FloatingActionButton mFabMealCardAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,6 @@ public class MainActivity extends AppCompatActivity
         mViewPager = findViewById(R.id.vp_fridge);
 
         mProgressBarMain = findViewById(R.id.progressBarMain);
-        mProgressBarMain.show();
 
         Client.getUserFridges(this, this);
 
@@ -85,8 +85,8 @@ public class MainActivity extends AppCompatActivity
             public void onPageScrollStateChanged(int state) {
             }
         });
-        FloatingActionButton fab_meal_card_add = findViewById(R.id.fab_main_meal_card_add);
-        fab_meal_card_add.setOnClickListener(new View.OnClickListener() {
+        mFabMealCardAdd = findViewById(R.id.fab_main_meal_card_add);
+        mFabMealCardAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, MealCardAddActivity.class);
@@ -100,8 +100,18 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        setLoadProgress(true);
+
         mNavigationView = findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void setLoadProgress(boolean value) {
+        mFabMealCardAdd.setEnabled(!value);
+        if (value)
+            mProgressBarMain.show();
+        else
+            mProgressBarMain.hide();
     }
 
     private void navigateToFridgePage(int position) {
@@ -336,7 +346,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSuccess(int code, Object response) {
-        mProgressBarMain.hide();
+        setLoadProgress(false);
         switch (code) {
             case Client.CODE_ADDFRIDGEUSER:
                 Client.getUserFridges(this, this);
@@ -349,7 +359,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public int onError(int code, int errorcode, String errorDescription) {
-        mProgressBarMain.hide();
+        setLoadProgress(false);
         Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
         return 0;
     }

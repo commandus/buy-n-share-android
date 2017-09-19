@@ -15,7 +15,7 @@
         android:layout_marginTop="32pt"
         android:orientation="vertical">
         <android.support.v4.widget.ContentLoadingProgressBar
-            android:id="@+id/progressBarFridgeAdd"
+            android:id="@+id/progress_bar_fridge_add"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="16dp"

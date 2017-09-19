@@ -1,5 +1,6 @@
 package com.commandus.buynshare;
 
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -19,6 +20,8 @@ public class UserEditActivity extends AppCompatActivity
 
     private static final String TAG = UserEditActivity.class.getSimpleName();
     private EditText mCN;
+    private ContentLoadingProgressBar mProgressBarUserEdit;
+    private boolean mInProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +30,11 @@ public class UserEditActivity extends AppCompatActivity
 
         Toolbar toolbarUserEdit = findViewById(R.id.toolbar_user_edit);
         mCN = findViewById(R.id.et_user_cn);
+        mProgressBarUserEdit = findViewById(R.id.progress_bar_fridge_add);
+
         setTitle(getString(R.string.title_activity_user_add));
         // setSupportActionBar(toolbarUserEdit);
+        setLoadProgress(false);
     }
 
     @Override
@@ -43,6 +49,9 @@ public class UserEditActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.user_edit, menu);
+        MenuItem mi = menu.findItem(R.id.action_adduser);
+        if (mi != null)
+            mi.setEnabled(!mInProgress);
         return true;
         /*
         Toolbar tb = (Toolbar) findViewById(R.id.toolbar_user_edit);
@@ -60,9 +69,6 @@ public class UserEditActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         if (id == R.id.action_adduser) {
@@ -76,6 +82,16 @@ public class UserEditActivity extends AppCompatActivity
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setLoadProgress(boolean value) {
+        mInProgress = value;
+        mCN.setEnabled(!value);
+        invalidateOptionsMenu();
+        if (value)
+            mProgressBarUserEdit.show();
+        else
+            mProgressBarUserEdit.hide();
     }
 
     @Override

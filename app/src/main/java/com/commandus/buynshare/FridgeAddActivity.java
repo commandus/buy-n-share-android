@@ -35,7 +35,7 @@ public class FridgeAddActivity extends AppCompatActivity implements OnServiceRes
         Toolbar toolbar = findViewById(R.id.toolbar_fridge_add);
         setSupportActionBar(toolbar);
 
-        mProgressBarFridgeAdd = findViewById(R.id.progressBarFridgeAdd);
+        mProgressBarFridgeAdd = findViewById(R.id.progress_bar_fridge_add);
 
         mFabSave = findViewById(R.id.fab_fridge_add);
         mFabSave.setOnClickListener(new View.OnClickListener() {
@@ -45,7 +45,7 @@ public class FridgeAddActivity extends AppCompatActivity implements OnServiceRes
             }
         });
         tvFridgeCN = findViewById(R.id.tv_fridge_add_cn);
-        setProgress(false);
+        setLoadProgress(false);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class FridgeAddActivity extends AppCompatActivity implements OnServiceRes
     }
 
     private void save() {
-        setProgress(true);
+        setLoadProgress(true);
         String cn = "";
         try {
             cn = tvFridgeCN.getText().toString();
@@ -90,10 +90,11 @@ public class FridgeAddActivity extends AppCompatActivity implements OnServiceRes
         Client.addFridge(getString(R.string.default_locale), mAppSettings.getUserId(), cn, balance, this);
     }
 
-    private void setProgress(boolean value) {
+    private void setLoadProgress(boolean value) {
         mInProgress = value;
         invalidateOptionsMenu();
-        mFabSave.setEnabled(value);
+        mFabSave.setEnabled(!value);
+        tvFridgeCN.setEnabled(!value);
         if (value)
             mProgressBarFridgeAdd.show();
         else
@@ -102,7 +103,7 @@ public class FridgeAddActivity extends AppCompatActivity implements OnServiceRes
 
     @Override
     public void onSuccess(int code, Object response) {
-        setProgress(false);
+        setLoadProgress(false);
         switch (code) {
             case Client.CODE_ADDFRIDGE:
                 Fridge f = (Fridge) response;
@@ -117,7 +118,7 @@ public class FridgeAddActivity extends AppCompatActivity implements OnServiceRes
 
     @Override
     public int onError(int code, int errorcode, String errorDescription) {
-        setProgress(false);
+        setLoadProgress(false);
         Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
         return 0;
     }

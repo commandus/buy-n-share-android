@@ -27,6 +27,7 @@ public class FridgeListActivity extends AppCompatActivity
     private Client mClient;
     private ContentLoadingProgressBar mProgressBarFridgeList;
     private long mRetFridgeId;
+    private FloatingActionButton mFabFridgeAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +37,8 @@ public class FridgeListActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar_fridge_list);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab_fridge_list_add);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mFabFridgeAdd = findViewById(R.id.fab_fridge_list_add);
+        mFabFridgeAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(FridgeListActivity.this, FridgeAddActivity.class);
@@ -54,7 +55,7 @@ public class FridgeListActivity extends AppCompatActivity
         });
 
         mProgressBarFridgeList = findViewById(R.id.progressBarFridgeList);
-        mProgressBarFridgeList.show();
+        setLoadProgress(true);
         Client.lsFridges(this, getString(R.string.default_locale), this);
     }
 
@@ -82,9 +83,17 @@ public class FridgeListActivity extends AppCompatActivity
         }
     }
 
+    private void setLoadProgress(boolean value) {
+        mFabFridgeAdd.setEnabled(!value);
+        if (value)
+            mProgressBarFridgeList.show();
+        else
+            mProgressBarFridgeList.hide();
+    }
+
     @Override
     public void onSuccess(int code, Object response) {
-        mProgressBarFridgeList.hide();
+        setLoadProgress(false);
         switch (code) {
             case Client.CODE_LSFRIDGES:
                 lvFridgesAdapter  = new FridgeAdapter(mClient, (Fridges) response);
@@ -104,7 +113,7 @@ public class FridgeListActivity extends AppCompatActivity
 
     @Override
     public int onError(int code, int errorcode, String errorDescription) {
-        mProgressBarFridgeList.hide();
+        setLoadProgress(false);
         Toast.makeText(this, errorDescription, Toast.LENGTH_LONG).show();
         return 0;
     }
