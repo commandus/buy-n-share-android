@@ -37,7 +37,7 @@ public class FridgeAddActivity extends AppCompatActivity implements OnServiceRes
 
         mProgressBarFridgeAdd = findViewById(R.id.progressBarFridgeAdd);
 
-        mFabSave = findViewById(R.id.fab_fridge_add_refresh);
+        mFabSave = findViewById(R.id.fab_fridge_add);
         mFabSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

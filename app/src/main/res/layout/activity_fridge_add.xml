@@ -35,7 +35,7 @@
     <include layout="@layout/content_fridge_add" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_fridge_add_refresh"
+        android:id="@+id/fab_fridge_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"

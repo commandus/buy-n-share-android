@@ -76,6 +76,7 @@ public class FridgeListActivity extends AppCompatActivity
                 if (mRetFridgeId > 0) {
                     mProgressBarFridgeList.show();
                     Client.lsFridges(this, getString(R.string.default_locale), this);
+                    Client.getUserFridges(this, this);
                 }
                 break;
         }
@@ -88,6 +89,8 @@ public class FridgeListActivity extends AppCompatActivity
             case Client.CODE_LSFRIDGES:
                 lvFridgesAdapter  = new FridgeAdapter(mClient, (Fridges) response);
                 mListViewFridges.setAdapter(lvFridgesAdapter);
+                break;
+            case Client.CODE_GETUSERFRIDGES:
                 if (mRetFridgeId > 0) {
                     // After we got a new fridge list, return position in the list
                     int p = Client.getFridgePos(mRetFridgeId);
