@@ -566,12 +566,12 @@ public class Client {
                         @Override
                         public void onResponse(Response response) {
                             try {
-                                Fridge fridgeRet = Fridge.getRootAsFridge(ByteBuffer.wrap(response.body().bytes()));
+                                Meal mealRet = Meal.getRootAsMeal(ByteBuffer.wrap(response.body().bytes()));
                                 if (onServiceResponse != null)
-                                    onServiceResponse.onSuccess(CODE_ADDMEAL, fridgeRet);
-                                Log.i(TAG, "Fridge created, id: " + fridgeRet.id());
+                                    onServiceResponse.onSuccess(CODE_ADDMEAL, mealRet);
+                                Log.i(TAG, "Meal added, id: " + mealRet.id());
                             } catch (Exception e) {
-                                Log.e(TAG, "addFridge() " + e.toString());
+                                Log.e(TAG, "addMeal() " + e.toString());
                                 e.printStackTrace();
                             }
                         }
@@ -585,7 +585,7 @@ public class Client {
         } catch (Exception e) {
             if (onServiceResponse != null)
                 onServiceResponse.onError(CODE_ADDMEAL, -1, e.getLocalizedMessage());
-            Log.e(TAG, "addFridge() " + e.toString());
+            Log.e(TAG, "addMeal() " + e.toString());
             e.printStackTrace();
         }
     }

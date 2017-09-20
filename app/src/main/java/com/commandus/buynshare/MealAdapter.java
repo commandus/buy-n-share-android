@@ -19,29 +19,30 @@ import bs.Meal;
 import bs.Meals;
 import bs.UserFridges;
 
-public class MealAdapter extends BaseAdapter implements Filterable {
+class MealAdapter extends BaseAdapter implements Filterable {
     private Meals mMeals;
     private Client mClient;
+    private List<Meal> resultList = new ArrayList<>();
 
-    public MealAdapter(Client client, Meals values) {
+    MealAdapter(Client client, Meals values) {
         mClient = client;
         mMeals = values;
     }
 
     @Override
     public int getCount() {
-        if (mMeals == null)
+        if (resultList == null)
             return 0;
-        return mMeals.mealsLength();
+        return resultList.size();
     }
 
     @Override
     public Object getItem(int position) {
-        if (mMeals == null)
+        if (resultList == null)
             return null;
-        if (position < 0 || position >= mMeals.mealsLength())
+        if (position < 0 || position >= resultList.size())
             return null;
-        return mMeals.meals(position).cn();
+        return resultList.get(position).cn();
     }
 
     @Override
@@ -54,22 +55,20 @@ public class MealAdapter extends BaseAdapter implements Filterable {
         Context context = parent.getContext();
         if (convertView == null) {
             LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = vi.inflate(R.layout.list_item_meal, null);
+            convertView = vi.inflate(R.layout.list_item_meal, parent, false);
         }
-        TextView tv_cn = (TextView) convertView.findViewById(R.id.text_meal_cn);
+        TextView tv_cn = convertView.findViewById(R.id.text_meal_cn);
         if (mMeals == null)
             return convertView;
-        if (position < 0 || position >= mMeals.mealsLength())
+        if (position < 0 || position >= resultList.size())
             return convertView;
-        tv_cn.setText(mMeals.meals(position).cn());
+        tv_cn.setText(resultList.get(position).cn());
         return convertView;
     }
 
-    private List<Meal> resultList = new ArrayList<Meal>();
-
     @Override
     public Filter getFilter() {
-        Filter filter = new Filter() {
+        return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults filterResults = new FilterResults();
@@ -82,6 +81,7 @@ public class MealAdapter extends BaseAdapter implements Filterable {
                 return filterResults;
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 if (results != null && results.count > 0) {
@@ -91,17 +91,22 @@ public class MealAdapter extends BaseAdapter implements Filterable {
                     notifyDataSetInvalidated();
                 }
             }};
-        return filter;
     }
 
     private List<Meal> findMeal(String constraint) {
-        List<Meal> r = new ArrayList<Meal>();
+        List<Meal> r = new ArrayList<>();
         if (mMeals == null)
             return r;
         String uconstraint = constraint.toUpperCase();
         for (int m = 0; m < mMeals.mealsLength(); m++) {
-            if (mMeals.meals(m).cn().toUpperCase().contains(uconstraint))
-                r.add(mMeals.meals(m));
+            Meal meal = mMeals.meals(m);
+            if (meal != null) {
+                String cn = meal.cn();
+                if (cn != null) {
+                    if (cn.toUpperCase().contains(uconstraint))
+                        r.add(mMeals.meals(m));
+                }
+            }
         }
         return r;
     }
