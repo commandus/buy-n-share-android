@@ -611,18 +611,18 @@ public class Client {
                 onServiceResponse.onError(CODE_TOGGLE_VOTE, -1, "No purchase");
             return;
         }
-        final boolean voted = isVoted(userId, purchase);
+        final boolean voted = voteExists(userId, purchase);
         String u = voted ? "rm_vote.php" : "add_vote.php";
         try {
             AndroidNetworking.post(URL + u)
                     .setContentType("application/octet-stream")
-                    .addPathParameter("user_id", String.valueOf(userId))
-                    .addPathParameter("purchase_id", String.valueOf(purchase.id()))
+                    .addQueryParameter("user_id", String.valueOf(userId))
+                    .addQueryParameter("purchase_id", String.valueOf(purchase.id()))
                     .build()
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
                         public void onResponse(Response response) {
-                            Log.i(TAG, "Vote toggled");
+                            Log.i(TAG, "Vote " + (voted ? " removed" : "added"));
                             if (onServiceResponse != null) {
                                 Purchase p = setPurchaseVote(userId, userCN, purchase, !voted);
                                 onServiceResponse.onSuccess(CODE_TOGGLE_VOTE, p);
@@ -718,21 +718,5 @@ public class Client {
                 purchase.cost(), purchase.start(), purchase.finish(), vvotes);
         fbb.finish(p);
         return Purchase.getRootAsPurchase(fbb.dataBuffer());
-    }
-
-    /**
-     * Return true if user voted
-     * @param userId user identifier
-     * @param purchase Purchase
-     * @return true if user voted
-     */
-    private static boolean isVoted(long userId, Purchase purchase) {
-        if (purchase == null)
-            return false;
-        for (int v = 0; v < purchase.votesLength(); v++) {
-            if (purchase.votes(v).id() == userId)
-                return true;
-        }
-        return false;
     }
 }

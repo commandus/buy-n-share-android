@@ -74,10 +74,10 @@ public class PurchaseListActivity extends AppCompatActivity implements OnService
                 mListviewPurchase.setAdapter(mFridgePurchaseAdapter);
                 break;
             case Client.CODE_TOGGLE_VOTE:
-                /*
-                mFridgePurchaseAdapter = new FridgePurchaseAdapter(mClient, mUserId, (Purchases) response);
-                mListviewPurchase.setAdapter(mFridgePurchaseAdapter);
-                */
+                // TODO
+                setLoadProgress(true);
+                Client.getFridgePurchases(this, mFridgeId, this);
+
                 Purchase purchase = (Purchase) response;
                 Log.i(TAG, String.valueOf(purchase.id()));
                 break;
