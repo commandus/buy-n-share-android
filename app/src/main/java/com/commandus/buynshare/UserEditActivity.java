@@ -99,7 +99,7 @@ public class UserEditActivity extends AppCompatActivity
         switch (code) {
             case Client.CODE_ADDUSER:
                 ApplicationSettings s = ApplicationSettings.getInstance(this);
-                s.saveUser((User)response);
+                s.saveUser(this, (User)response);
                 // Toast.makeText(this, "Success", Toast.LENGTH_LONG).show();
                 finish();
                 break;

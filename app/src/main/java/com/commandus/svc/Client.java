@@ -43,6 +43,7 @@ public class Client {
     public static final int CODE_ADDPURCHASE = 7;
     public static final int CODE_ADDFRIDGE = 8;
     public static final int CODE_ADDMEAL = 9;
+    public static final int CODE_TOGGLE_VOTE = 10;
 
     private static Client mInstance = null;
     private static Meals mMeals;
@@ -588,5 +589,150 @@ public class Client {
             Log.e(TAG, "addMeal() " + e.toString());
             e.printStackTrace();
         }
+    }
+
+    public static String getVoterNames(Purchase p) {
+        StringBuilder b = new StringBuilder();
+        if (p == null)
+            return "";
+        for (int i = 0; i < p.votesLength(); i++) {
+            b.append("✔");
+            String cn = p.votes(i).cn();
+            if (cn == null)
+                cn = "?";
+            b.append(cn).append(" ");
+        }
+        return b.toString();
+    }
+
+    public static void toggleVote(final long userId, final String userCN, final Purchase purchase, final OnServiceResponse onServiceResponse) {
+        if (purchase == null) {
+            if (onServiceResponse != null)
+                onServiceResponse.onError(CODE_TOGGLE_VOTE, -1, "No purchase");
+            return;
+        }
+        final boolean voted = isVoted(userId, purchase);
+        String u = voted ? "rm_vote.php" : "add_vote.php";
+        try {
+            AndroidNetworking.post(URL + u)
+                    .setContentType("application/octet-stream")
+                    .addPathParameter("user_id", String.valueOf(userId))
+                    .addPathParameter("purchase_id", String.valueOf(purchase.id()))
+                    .build()
+                    .getAsOkHttpResponse(new OkHttpResponseListener() {
+                        @Override
+                        public void onResponse(Response response) {
+                            Log.i(TAG, "Vote toggled");
+                            if (onServiceResponse != null) {
+                                Purchase p = setPurchaseVote(userId, userCN, purchase, !voted);
+                                onServiceResponse.onSuccess(CODE_TOGGLE_VOTE, p);
+                            }
+                        }
+                        @Override
+                        public void onError(ANError anError) {
+                            if (onServiceResponse != null)
+                                onServiceResponse.onError(CODE_TOGGLE_VOTE, anError.getErrorCode(), anError.getLocalizedMessage());
+                            Log.e(TAG, URL + ": " + anError.getErrorDetail() + ": " + anError.getLocalizedMessage());
+                        }
+                    });
+        } catch (Exception e) {
+            if (onServiceResponse != null)
+                onServiceResponse.onError(CODE_TOGGLE_VOTE, -1, e.getLocalizedMessage());
+            Log.e(TAG, "toggleVote() " + e.toString());
+            e.printStackTrace();
+        }
+    }
+
+    private static Purchase setPurchaseVote(long userId, String userCN, Purchase purchase, boolean value) {
+        if (purchase == null)
+            return null;
+        FlatBufferBuilder fbb = new FlatBufferBuilder(0);
+
+        Meal meal = purchase.meal();
+        int m;
+        if (meal != null) {
+            int smeal_cn = fbb.createString(meal.cn());
+            int slocale = fbb.createString(meal.locale());
+            m = Meal.createMeal(fbb, meal.id(), smeal_cn, slocale);
+        }
+        else
+            m = 0;
+
+        int votes[];
+        boolean needAdd = value;
+        int needRemove = -1;
+        if (value) {
+            for (int i = 0; i < purchase.votesLength(); i++) {
+                if (purchase.votes(i).id() == userId) {
+                    needAdd = false;
+                    break;
+                }
+            }
+            if (needAdd)
+                votes = new int[purchase.votesLength() + 1];
+            else
+                votes = new int[purchase.votesLength()];
+        }
+        else
+        {
+            for (int i = 0; i < purchase.votesLength(); i++) {
+                if (purchase.votes(i).id() == userId) {
+                    needRemove = i;
+                    break;
+                }
+            }
+            if (needRemove >= 0)
+                votes = new int[purchase.votesLength() - 1];
+            else
+                votes = new int[purchase.votesLength()];
+        }
+
+        int j = 0;
+        for (int i = 0; i < purchase.votesLength(); i++) {
+            if (needRemove == i)
+                continue;
+
+            User u = purchase.votes(i);
+            int scn = fbb.createString(u.cn());
+            int sKey = fbb.createString(u.key());
+            int slocale = fbb.createString(u.locale());
+            User.startUser(fbb);
+            User.addId(fbb, u.id());
+            User.addCn(fbb, scn);
+            User.addKey(fbb, sKey);
+            User.addLocale(fbb, slocale);
+            votes[j] = User.endUser(fbb);
+            j++;
+        }
+
+        if (needAdd) {
+            int scn = fbb.createString(userCN);
+            User.startUser(fbb);
+            User.addId(fbb, userId);
+            User.addCn(fbb, scn);
+            votes[votes.length - 1] = User.endUser(fbb);
+        }
+
+        int vvotes = Purchase.createVotesVector(fbb, votes);
+        int p = Purchase.createPurchase(fbb, purchase.id(), purchase.userid(), purchase.fridgeid(), m,
+                purchase.cost(), purchase.start(), purchase.finish(), vvotes);
+        fbb.finish(p);
+        return Purchase.getRootAsPurchase(fbb.dataBuffer());
+    }
+
+    /**
+     * Return true if user voted
+     * @param userId user identifier
+     * @param purchase Purchase
+     * @return true if user voted
+     */
+    private static boolean isVoted(long userId, Purchase purchase) {
+        if (purchase == null)
+            return false;
+        for (int v = 0; v < purchase.votesLength(); v++) {
+            if (purchase.votes(v).id() == userId)
+                return true;
+        }
+        return false;
     }
 }

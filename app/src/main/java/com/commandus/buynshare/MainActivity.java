@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 Client.rmUser();
-                                mApplicationSettings.clearUser();
+                                mApplicationSettings.clearUser(MainActivity.this);
                                 Client.clearAccount();
                                 Toast.makeText(MainActivity.this, R.string.action_rm_user_done, Toast.LENGTH_SHORT).show();
                                 refreshUserFridges(null);

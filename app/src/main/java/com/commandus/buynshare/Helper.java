@@ -1,7 +1,9 @@
 package com.commandus.buynshare;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 
 /**
  * Helper class provides static methods to install app, get value line #1 number, impoved version of parseUri etc.
@@ -123,5 +126,15 @@ public class Helper {
         byte[] arr = new byte[fbb.dataBuffer().remaining()];
         fbb.dataBuffer().get(arr);
         return arr;
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    static Locale getCurrentLocale(Context context){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            return context.getResources().getConfiguration().getLocales().get(0);
+        } else{
+            //noinspection deprecation
+            return context.getResources().getConfiguration().locale;
+        }
     }
 }
