@@ -44,6 +44,7 @@ public class Client {
     public static final int CODE_ADDFRIDGE = 8;
     public static final int CODE_ADDMEAL = 9;
     public static final int CODE_TOGGLE_VOTE = 10;
+    public static final int ERRCODE_NO_USER_YET = -1;
 
     private static Client mInstance = null;
     private static Meals mMeals;
@@ -59,9 +60,11 @@ public class Client {
         return mInstance;
     }
 
-    public static void getMeals(Context context, String locale, final OnServiceResponse onServiceResponse) {
+    public static void getMeals(ApplicationSettings appSettings, String locale, final OnServiceResponse onServiceResponse) {
         try {
             AndroidNetworking.post(URL + "ls_meal.php")
+                    .addHeaders("u", String.valueOf(appSettings.getUserId()))
+                    .addHeaders("p", appSettings.getUserPwd())
                     .setContentType("application/octet-stream")
                     .addQueryParameter("locale", locale)
                     .build()
@@ -95,10 +98,12 @@ public class Client {
         }
     }
 
-    public static void getFridgePurchases(Context context, final long fridge_id, final OnServiceResponse onServiceResponse) {
+    public static void getFridgePurchases(ApplicationSettings appSettings, final long fridge_id, final OnServiceResponse onServiceResponse) {
         try {
             AndroidNetworking.post(URL + "ls_purchase.php")
                     .setContentType("application/octet-stream")
+                    .addHeaders("u", String.valueOf(appSettings.getUserId()))
+                    .addHeaders("p", appSettings.getUserPwd())
                     .addQueryParameter("user_id", String.valueOf(0))
                     .addQueryParameter("fridge_id", String.valueOf(fridge_id))
                     .build()
@@ -134,23 +139,26 @@ public class Client {
 
     /**
      * Return UserFridges
-     * @param context Application contetx
+     * @param appSettings Application settings
+     * @param onServiceResponse onServiceResponse
      */
-    public static void getUserFridges(final Context context, final OnServiceResponse onServiceResponse) {
-        ApplicationSettings settings = ApplicationSettings.getInstance(context);
-        final long userId = settings.getUserId();
+    public static void getUserFridges(
+            ApplicationSettings appSettings,
+            final OnServiceResponse onServiceResponse) {
+        final long userId = appSettings.getUserId();
         if (userId <= 0) {
             // No user created yet
             mUserFridges = null;
             if (onServiceResponse != null) {
-                onServiceResponse.onError(CODE_GETUSERFRIDGES, -1,
-                        context.getString(R.string.error_no_user_yet));
+                onServiceResponse.onError(CODE_GETUSERFRIDGES, ERRCODE_NO_USER_YET, "No user created yet");
                 return;
             }
         }
         try {
             AndroidNetworking.post(URL + "ls_userfridge.php")
                     .setContentType("application/octet-stream")
+                    .addHeaders("u", String.valueOf(appSettings.getUserId()))
+                    .addHeaders("p", appSettings.getUserPwd())
                     .addQueryParameter("user_id", String.valueOf(userId))
                     .build()
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
@@ -185,13 +193,16 @@ public class Client {
 
     /**
      * Return List of fridges
-     * @param context Application context
+     * @param appSettings Application settings
      */
-    public static void lsFridges(Context context, String locale, final OnServiceResponse onServiceResponse) {
+    public static void lsFridges(ApplicationSettings appSettings,
+                                 String locale, final OnServiceResponse onServiceResponse) {
         try {
             AndroidNetworking.post(URL + "ls_fridge.php")
                     .setContentType("application/octet-stream")
-                    .addQueryParameter("locale", context.getString(R.string.default_locale))
+                    .addHeaders("u", String.valueOf(appSettings.getUserId()))
+                    .addHeaders("p", appSettings.getUserPwd())
+                    .addQueryParameter("locale", locale)
                     .build()
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
                         @Override
@@ -237,6 +248,8 @@ public class Client {
         try {
             AndroidNetworking.post(URL + "add_user.php")
                     .setContentType("application/octet-stream")
+                    .addHeaders("u", "")
+                    .addHeaders("p", "")
                     .addByteBody(Helper.getFBBytes(fbb))
                     .build()
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
@@ -267,7 +280,7 @@ public class Client {
         }
     }
 
-    public void addFridgeUser(long userId, Fridge fridge, long balance, String locale,
+    public void addFridgeUser(ApplicationSettings appSettings, long userId, Fridge fridge, long balance, String locale,
                               final OnServiceResponse onServiceResponse) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         Date start = new Date();
@@ -288,6 +301,8 @@ public class Client {
         try {
             AndroidNetworking.post(URL + "add_fridgeuser.php")
                     .setContentType("application/octet-stream")
+                    .addHeaders("u", String.valueOf(appSettings.getUserId()))
+                    .addHeaders("p", appSettings.getUserPwd())
                     .addByteBody(Helper.getFBBytes(fbb))
                     .build()
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
@@ -448,6 +463,7 @@ public class Client {
     }
 
     public static void addPurchase(
+            ApplicationSettings appSettings,
             String locale, long userId, long fridgeId, long mealId,
             long cost, int qty,
             final OnServiceResponse onServiceResponse) {
@@ -465,6 +481,8 @@ public class Client {
         try {
             AndroidNetworking.post(URL + "add_purchase.php")
                     .setContentType("application/octet-stream")
+                    .addHeaders("u", String.valueOf(appSettings.getUserId()))
+                    .addHeaders("p", appSettings.getUserPwd())
                     .addQueryParameter("qty", String.valueOf(qty))
                     .addQueryParameter("all", "")
                     .addByteBody(Helper.getFBBytes(fbb))
@@ -505,9 +523,11 @@ public class Client {
         // TODO
     }
 
-    public static void addFridge(String locale, long userId, String cn,
-                                 long balance,
-                                 final OnServiceResponse onServiceResponse) {
+    public static void addFridge(
+            ApplicationSettings appSettings,
+            String locale, long userId, String cn,
+            long balance,
+            final OnServiceResponse onServiceResponse) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         int scn = fbb.createString(cn);
         int slocale = fbb.createString(locale);
@@ -520,6 +540,8 @@ public class Client {
         try {
             AndroidNetworking.post(URL + "add_fridge.php")
                     .setContentType("application/octet-stream")
+                    .addHeaders("u", String.valueOf(appSettings.getUserId()))
+                    .addHeaders("p", appSettings.getUserPwd())
                     .addQueryParameter("user_id", String.valueOf(userId))
                     .addQueryParameter("balance", String.valueOf(balance))
                     .addByteBody(Helper.getFBBytes(fbb))
@@ -552,7 +574,10 @@ public class Client {
         }
     }
 
-    public static void addMeal(String locale, String cn, final OnServiceResponse onServiceResponse) {
+    public static void addMeal(
+            ApplicationSettings appSettings,
+            String locale, String cn,
+            final OnServiceResponse onServiceResponse) {
         FlatBufferBuilder fbb = new FlatBufferBuilder(0);
         int scn = fbb.createString(cn);
         int slocale = fbb.createString(locale);
@@ -561,6 +586,8 @@ public class Client {
         try {
             AndroidNetworking.post(URL + "add_meal.php")
                     .setContentType("application/octet-stream")
+                    .addHeaders("u", String.valueOf(appSettings.getUserId()))
+                    .addHeaders("p", appSettings.getUserPwd())
                     .addByteBody(Helper.getFBBytes(fbb))
                     .build()
                     .getAsOkHttpResponse(new OkHttpResponseListener() {
@@ -605,7 +632,10 @@ public class Client {
         return b.toString();
     }
 
-    public static void toggleVote(final long userId, final String userCN, final Purchase purchase, final OnServiceResponse onServiceResponse) {
+    public static void toggleVote(
+            ApplicationSettings appSettings,
+            final long userId, final String userCN, final Purchase purchase,
+            final OnServiceResponse onServiceResponse) {
         if (purchase == null) {
             if (onServiceResponse != null)
                 onServiceResponse.onError(CODE_TOGGLE_VOTE, -1, "No purchase");
@@ -616,6 +646,8 @@ public class Client {
         try {
             AndroidNetworking.post(URL + u)
                     .setContentType("application/octet-stream")
+                    .addHeaders("u", String.valueOf(appSettings.getUserId()))
+                    .addHeaders("p", appSettings.getUserPwd())
                     .addQueryParameter("user_id", String.valueOf(userId))
                     .addQueryParameter("purchase_id", String.valueOf(purchase.id()))
                     .build()

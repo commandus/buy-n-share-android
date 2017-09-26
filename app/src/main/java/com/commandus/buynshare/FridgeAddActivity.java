@@ -87,7 +87,7 @@ public class FridgeAddActivity extends AppCompatActivity implements OnServiceRes
         }
         ApplicationSettings mAppSettings = ApplicationSettings.getInstance(this);
         long balance = 0;
-        Client.addFridge(getString(R.string.default_locale), mAppSettings.getUserId(), cn, balance, this);
+        Client.addFridge(mAppSettings, getString(R.string.default_locale), mAppSettings.getUserId(), cn, balance, this);
     }
 
     private void setLoadProgress(boolean value) {

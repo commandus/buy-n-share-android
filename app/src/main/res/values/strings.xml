@@ -38,4 +38,5 @@
     <string name="action_add_fridge_confirm">Your fridge list is empty. Add a new fridge?</string>
     <string name="hint_tv_fridge_add_cn">Fridge name</string>
     <string name="error_no_user_yet">Create user account first</string>
+    <string name="action_purchase_list_back">Back</string>
 </resources>

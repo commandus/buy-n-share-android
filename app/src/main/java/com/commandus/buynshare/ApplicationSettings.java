@@ -25,7 +25,7 @@ public class ApplicationSettings {
 	private static ApplicationSettings mInstance = null;
 	private static boolean mFirstTime;
 
-	public synchronized static ApplicationSettings getInstance(Context context) {
+	synchronized static ApplicationSettings getInstance(Context context) {
 		if (mInstance == null) {
 			mInstance = new ApplicationSettings(context);
 		}
@@ -40,10 +40,14 @@ public class ApplicationSettings {
 		return mUserId;
 	}
 
+	public String getUserPwd() {
+		return mUserPwd;
+	}
+
+
 	String getUserCN() {
 		return mUserCN;
 	}
-
 
     boolean isUserRegistered() {
         return mUserId > 0;

@@ -91,7 +91,6 @@ class FridgePurchaseAdapter extends BaseAdapter {
 
         tv_user_cn.setText(Client.getVoterNames(p));
 
-
         return convertView;
     }
 }

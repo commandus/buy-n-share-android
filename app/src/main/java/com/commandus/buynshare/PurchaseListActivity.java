@@ -5,6 +5,8 @@ import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -31,12 +33,13 @@ public class PurchaseListActivity extends AppCompatActivity implements OnService
     private Client mClient;
     private ListView mListviewPurchase;
     private ContentLoadingProgressBar mProgressBarPurchaseList;
+    private ApplicationSettings mAppSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_purchase_list);
-
+        mAppSettings = ApplicationSettings.getInstance(this);
         mClient = Client.getInstance();
 
         mListviewPurchase = findViewById(R.id.listview_purchase_list);
@@ -44,7 +47,7 @@ public class PurchaseListActivity extends AppCompatActivity implements OnService
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Purchase p = (Purchase) mFridgePurchaseAdapter.getItem(position);
-                Client.toggleVote(mUserId, mUserCN, p, PurchaseListActivity.this);
+                Client.toggleVote(mAppSettings, mUserId, mUserCN, p, PurchaseListActivity.this);
                 if (mFridgePurchaseAdapter != null)
                     mFridgePurchaseAdapter.notifyDataSetChanged();
             }
@@ -62,7 +65,26 @@ public class PurchaseListActivity extends AppCompatActivity implements OnService
 
         mProgressBarPurchaseList = findViewById(R.id.progress_bar_purchase);
         setLoadProgress(true);
-        Client.getFridgePurchases(this, mFridgeId, this);
+        Client.getFridgePurchases(mAppSettings, mFridgeId, this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_purchase_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        int id = item.getItemId();
+        switch(id) {
+            case R.id.action_purchase_list_back:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -76,7 +98,7 @@ public class PurchaseListActivity extends AppCompatActivity implements OnService
             case Client.CODE_TOGGLE_VOTE:
                 // TODO
                 setLoadProgress(true);
-                Client.getFridgePurchases(this, mFridgeId, this);
+                Client.getFridgePurchases(mAppSettings, mFridgeId, this);
 
                 Purchase purchase = (Purchase) response;
                 Log.i(TAG, String.valueOf(purchase.id()));

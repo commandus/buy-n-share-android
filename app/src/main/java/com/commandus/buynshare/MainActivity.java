@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity
     private static final int RET_FRIDGE = 1;
     private static final int RET_NEW_USER = 2;
     private static final int RET_ADD_MEAL_CARD = 3;
-    private ApplicationSettings mApplicationSettings;
+    private ApplicationSettings mAppSettings;
     private Client mClient;
     private ViewPager mViewPager;
     private FridgeFragmentPagerAdapter mFridgeFragmentPagerAdapter;
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity
                 .build();
         AndroidNetworking.initialize(getApplicationContext(),okHttpClient);
 
-        mApplicationSettings = ApplicationSettings.getInstance(this);
+        mAppSettings = ApplicationSettings.getInstance(this);
         mClient = Client.getInstance();
 
         setContentView(R.layout.activity_main);
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        Client.getUserFridges(this, this);
+        Client.getUserFridges(mAppSettings, this);
 
         setLoadProgress(true);
 
@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if (!mApplicationSettings.isUserRegistered())
+        if (!mAppSettings.isUserRegistered())
         {
             Intent intent = new Intent(MainActivity.this, UserEditActivity.class);
             startActivity(intent);
@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity
         if (fu == null)
             return true;
         // SubMenu subMenu = menu.addSubMenu(getString(R.string.nav_my_fridges));
-        long id = mApplicationSettings.getUserId();
+        long id = mAppSettings.getUserId();
 
         SpannableString s;
         // me
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity
         switch(id) {
             case R.id.action_lspurchase:
                 intent = new Intent(MainActivity.this, PurchaseListActivity.class);
-                intent.putExtra(PurchaseListActivity.PAR_USER_ID, mApplicationSettings.getUserId());
+                intent.putExtra(PurchaseListActivity.PAR_USER_ID, mAppSettings.getUserId());
                 intent.putExtra(PurchaseListActivity.PAR_FRIDGE_ID, Client.getFridgeId(mViewPager.getCurrentItem()));
                 intent.putExtra(PurchaseListActivity.PAR_FRIDGE_CN, Client.getFridgeCN(mViewPager.getCurrentItem()));
                 startActivity(intent);
@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 Client.rmUser();
-                                mApplicationSettings.clearUser(MainActivity.this);
+                                mAppSettings.clearUser(MainActivity.this);
                                 Client.clearAccount();
                                 Toast.makeText(MainActivity.this, R.string.action_rm_user_done, Toast.LENGTH_SHORT).show();
                                 refreshUserFridges(null);
@@ -295,13 +295,13 @@ public class MainActivity extends AppCompatActivity
                 if (fridge_pos >= 0) {
                     // add user to the fridge
                     long balance = 0L;
-                    mClient.addFridgeUser(mApplicationSettings.getUserId(), Client.lastFridge(fridge_pos),
+                    mClient.addFridgeUser(mAppSettings, mAppSettings.getUserId(), Client.lastFridge(fridge_pos),
                             balance, getString(R.string.default_locale), this);
                 }
                 break;
             case RET_ADD_MEAL_CARD:
                 // Refresh list or add manually
-                Client.getUserFridges(this, this);
+                Client.getUserFridges(mAppSettings, this);
                 break;
             case RET_NEW_USER:
                 break;
@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity
         setLoadProgress(false);
         switch (code) {
             case Client.CODE_ADDFRIDGEUSER:
-                Client.getUserFridges(this, this);
+                Client.getUserFridges(mAppSettings, this);
                 return;
             case Client.CODE_GETUSERFRIDGES:
                 refreshUserFridges(Client.lastUserFridges());

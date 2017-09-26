@@ -55,7 +55,7 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
         });
 
         mMealCN = findViewById(R.id.actv_meal_card_add_cn);
-        Client.getMeals(this, getString(R.string.default_locale), this);
+        Client.getMeals(mAppSettings, getString(R.string.default_locale), this);
         mEtCost = findViewById(R.id.et_meal_card_add_cost);
         mEtQty = findViewById(R.id.et_meal_card_add_qty);
     }
@@ -102,9 +102,9 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
         }
         long mealId = Client.getMealId(meal);
         if (mealId < 0)
-            Client.addMeal(getString(R.string.default_locale), meal, this);
+            Client.addMeal(mAppSettings, getString(R.string.default_locale), meal, this);
         else {
-            Client.addPurchase(getString(R.string.default_locale), mAppSettings.getUserId(), mFridgeId, mealId, cost, qty, this);
+            Client.addPurchase(mAppSettings, getString(R.string.default_locale), mAppSettings.getUserId(), mFridgeId, mealId, cost, qty, this);
         }
     }
 
@@ -128,7 +128,7 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
                     cost = 0;
                 }
 
-                Client.addPurchase(getString(R.string.default_locale), mAppSettings.getUserId(), mFridgeId,
+                Client.addPurchase(mAppSettings, getString(R.string.default_locale), mAppSettings.getUserId(), mFridgeId,
                         meal.id(), cost, qty, this);
                 break;
             case Client.CODE_LSMEAL:
