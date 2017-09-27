@@ -6,4 +6,4 @@
 
 [Исходный код Андроид клиента на GitHub](https://github.com/commandus/buy-n-share-android)
 
-[Исходный код серверной части (PHP) на GitHub](https://github.com/commandus/buy-n-share-android)
+[Исходный код серверной части (PHP) на GitHub](https://github.com/commandus/buy-n-share)
