@@ -1,6 +1,7 @@
 package com.commandus.buynshare;
 
 import android.support.v4.widget.ContentLoadingProgressBar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -29,6 +30,10 @@ public class UserEditActivity extends AppCompatActivity
         setContentView(R.layout.activity_user_edit);
 
         Toolbar toolbarUserEdit = findViewById(R.id.toolbar_user_edit);
+        ActionBar b = getSupportActionBar();
+        if (b != null)
+            b.setDisplayHomeAsUpEnabled(true);
+
         mCN = findViewById(R.id.et_user_cn);
         mProgressBarUserEdit = findViewById(R.id.progress_bar_user_edit);
 

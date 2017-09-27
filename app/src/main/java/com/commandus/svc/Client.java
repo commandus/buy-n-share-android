@@ -725,9 +725,9 @@ public class Client {
                 continue;
 
             User u = purchase.votes(i);
-            int scn = fbb.createString(u.cn());
-            int sKey = fbb.createString(u.key());
-            int slocale = fbb.createString(u.locale());
+            int scn = u.cn() == null ? 0: fbb.createString(u.cn());
+            int sKey = u.key() == null ? 0 : fbb.createString(u.key());
+            int slocale = u.locale() == null ? 0 : fbb.createString(u.locale());
             User.startUser(fbb);
             User.addId(fbb, u.id());
             User.addCn(fbb, scn);

@@ -2,8 +2,11 @@ package com.commandus.buynshare;
 
 import android.content.Intent;
 import android.support.v4.widget.ContentLoadingProgressBar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.ActionMenuView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +56,11 @@ public class PurchaseListActivity extends AppCompatActivity implements OnService
             }
         });
         setTitle(mFridgeCN);
+        // getSupportActionBar().setTitle(mFridgeCN);
+        ActionBar b = getSupportActionBar();
+        if (b != null)
+            b.setDisplayHomeAsUpEnabled(true);
+
 
         Intent intent = getIntent();
         mUserId = intent.getLongExtra(PAR_USER_ID, 0);

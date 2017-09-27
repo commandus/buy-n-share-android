@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.ContentLoadingProgressBar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -34,6 +35,10 @@ public class FridgeAddActivity extends AppCompatActivity implements OnServiceRes
         setContentView(R.layout.activity_fridge_add);
         Toolbar toolbar = findViewById(R.id.toolbar_fridge_add);
         setSupportActionBar(toolbar);
+        ActionBar b = getSupportActionBar();
+        if (b != null)
+            b.setDisplayHomeAsUpEnabled(true);
+
 
         mProgressBarFridgeAdd = findViewById(R.id.progress_bar_fridge_add);
 

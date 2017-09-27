@@ -3,6 +3,7 @@ package com.commandus.buynshare;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -45,6 +46,10 @@ public class MealCardAddActivity extends AppCompatActivity implements OnServiceR
 
         Toolbar toolbar = findViewById(R.id.toolbar_meal_card_add);
         setSupportActionBar(toolbar);
+        ActionBar b = getSupportActionBar();
+        if (b != null)
+            b.setDisplayHomeAsUpEnabled(true);
+
 
         FloatingActionButton fab = findViewById(R.id.fab_meal_card_add);
         fab.setOnClickListener(new View.OnClickListener() {
