@@ -8,8 +8,8 @@
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         >
@@ -24,10 +24,12 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.LAUNCHER" />
                 <data android:scheme="http"
                     android:host="f.commandus.com" />
                 <data android:scheme="https"
@@ -49,10 +51,10 @@
             android:name=".FridgeAddActivity"
             android:label="@string/title_activity_fridge_add"
             android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName="com.commandus.buynshare.MainActivity">
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.commandus.buynshare.MainActivity" />
+                android:value=".MainActivity" />
             >
         </activity>
 
@@ -60,24 +62,24 @@
             android:name=".FridgeListActivity"
             android:label="@string/title_activity_fridge_list"
             android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName="com.commandus.buynshare.MainActivity">
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.commandus.buynshare.MainActivity" />
+                android:value=".MainActivity" />
             >
         </activity>
         <activity android:name=".UserEditActivity"
-            android:parentActivityName="com.commandus.buynshare.MainActivity">
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.commandus.buynshare.MainActivity" />
+                android:value=".MainActivity" />
             >
         </activity>
         <activity android:name=".PurchaseListActivity"
-            android:parentActivityName="com.commandus.buynshare.MainActivity">
+            android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.commandus.buynshare.MainActivity" />
+                android:value=".MainActivity" />
             >
         </activity>
     </application>
