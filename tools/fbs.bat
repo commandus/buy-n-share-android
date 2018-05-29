@@ -1,0 +1,1 @@
+flatc --java -o app/gen fbs/buynshare.fbs fbs/user.fbs fbs/fridge.fbs fbs/meal.fbs fbs/purchase.fbs fbs/mealcard.fbs fbs/fridgemealcards.fbs fbs/fridgeuser.fbs fbs/fridgeusers.fbs fbs/userfridges.fbs fbs/fridgepurchases.fbs fbs/userpurchases.fbs fbs/fridges.fbs fbs/purchases.fbs fbs/meals.fbs fbs/mealcards.fbs fbs/mealcard.fbs fbs/purchases.fbs fbs/payments.fbs
